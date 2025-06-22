@@ -7,6 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     @vite('resources/css/app.css')
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="build/assets/app-DIZS7WGS.css">
     <link rel="icon" type="image/png" href="{{ asset('images/logo-rescat.png') }}">
     <title>Welcome to ResCat.life</title>
 </head>

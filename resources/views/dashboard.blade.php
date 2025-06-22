@@ -4,10 +4,11 @@
 
 @section('content')
     {{-- hero section --}}
-    <section>
+    <section class="flex justify-center items-center flex-col">
         {{-- hero --}}
-        <div class="flex w-full  h-[70vh] items-center justify-center relative">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1044 508" fill="none" class="w-full h-full">
+        <div class="flex w-full lg:h-[70vh] h-auto px-2 lg:p-0 items-center justify-center relative">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1044 508" fill="none"
+                class="w-fit h-full rounded-2xl lg:rounded-4xl gradient-animation">
                 <defs>
                     <clipPath id="customShape">
                         <path
@@ -20,39 +21,43 @@
                     </linearGradient>
                 </defs>
                 <!-- Gambar background -->
-                <image href="https://images.unsplash.com/photo-1518717758536-85ae29035b6d?auto=format&fit=crop&w=1044&q=80"
-                    width="1044" height="508" clip-path="url(#customShape)" preserveAspectRatio="xMidYMid slice" class="opacity-70"/>
+                <image id="heroBg1" href="/images/banner1.jpg" width="1044" height="508" clip-path="url(#customShape)"
+                    preserveAspectRatio="xMidYMid slice" class="transition-all duration-1000 opacity-100 scale-100" />
+                <image id="heroBg2" href="/images/banner2.jpg" width="1044" height="508" clip-path="url(#customShape)"
+                    preserveAspectRatio="xMidYMid slice" class="transition-all duration-1000 opacity-0 scale-105" />
                 <image href="https://images.unsplash.com/photo-1608219679522-06e2440aebd7?auto=format&fit=crop&w=1044&q=80"
-                    width="1044" height="508" clip-path="url(#customShape)" preserveAspectRatio="xMidYMid slice" class="opacity-40"/>
+                    width="1044" height="508" clip-path="url(#customShape)" preserveAspectRatio="xMidYMid slice"
+                    class="opacity-40" />
                 <!-- Gradient transparan -->
                 <path
                     d="M30.9795 1H842.635C859.192 1.00001 872.614 14.4206 872.614 30.9756C872.614 77.7177 910.511 115.609 957.258 115.609H1013.02C1029.58 115.609 1043 129.03 1043 145.585V477.024C1043 493.579 1029.58 507 1013.02 507H164.189C147.633 507 134.211 493.579 134.211 477.024V464.634C134.211 416.181 94.927 376.902 46.4688 376.902H30.9795C14.4223 376.902 1 363.482 1 346.927V30.9756L1.00977 30.2021C1.41355 14.2619 14.2628 1.41381 30.2051 1.00977L30.9795 1Z"
                     fill="url(#gradientOverlay)" clip-path="url(#customShape)" />
                 <!-- SVG tulisan/logo di tengah -->
-                <g clip-path="url(#customShape)">
+                <g clip-path="url(#customShape)" class="drop-shadow-[0_0_20px_rgba(255,255,255,0.8)]">
                     <svg x="172" y="115" width="709" height="277" viewBox="0 0 709 277" style="overflow: visible">
                         <path
                             d="M29.5225 123.766L0 8.25107H20.7812L40.9027 87.2138L61.0242 8.25107H79.4139L99.5354 87.2138L119.574 8.25107H140.356L110.998 123.766H88.1553L70.1778 53.7969L52.4478 123.766H29.5225Z"
-                            fill="black" class="fill-black/80" />
+                            fill="black" class="fill-white/60 stroke-white stroke-[2]" />
                         <path
                             d="M179.144 125.911C171.557 125.911 164.63 123.958 158.363 120.053C152.15 116.147 147.175 110.894 143.437 104.293C139.753 97.6926 137.911 90.4042 137.911 82.4281C137.911 76.4324 138.983 70.8216 141.128 65.596C143.272 60.3153 146.213 55.6947 149.951 51.7342C153.745 47.7187 158.143 44.5833 163.146 42.328C168.149 40.0727 173.481 38.945 179.144 38.945C185.576 38.945 191.459 40.3202 196.791 43.0706C202.179 45.7659 206.742 49.4789 210.481 54.2095C214.219 58.9401 216.94 64.3308 218.645 70.3816C220.349 76.4324 220.734 82.7582 219.799 89.359H159.517C160.287 92.4394 161.551 95.2173 163.311 97.6926C165.07 100.113 167.296 102.066 169.99 103.551C172.684 104.981 175.735 105.724 179.144 105.779C182.662 105.834 185.851 105.009 188.71 103.303C191.624 101.543 194.043 99.1778 195.967 96.2074L216.501 100.993C213.147 108.309 208.144 114.305 201.492 118.98C194.84 123.601 187.39 125.911 179.144 125.911ZM158.858 74.2596H199.43C198.826 70.9592 197.534 67.9888 195.555 65.3484C193.63 62.6531 191.239 60.5078 188.38 58.9126C185.521 57.3174 182.443 56.5198 179.144 56.5198C175.845 56.5198 172.794 57.3174 169.99 58.9126C167.187 60.4528 164.795 62.5706 162.816 65.2659C160.892 67.9063 159.572 70.9042 158.858 74.2596Z"
-                            fill="black" class="fill-black/80" />
-                        <path d="M231.928 123.766V0H252.05V123.766H231.928Z" fill="black" class="fill-black/80" />
+                            fill="black" class="fill-white/60 stroke-white stroke-[2]" />
+                        <path d="M231.928 123.766V0H252.05V123.766H231.928Z" fill="black"
+                            class="fill-white/60 stroke-white stroke-[2]" />
                         <path
                             d="M321.712 98.9303L339.854 108.749C336.061 113.92 331.305 118.073 325.588 121.208C319.87 124.344 313.63 125.911 306.868 125.911C299.282 125.911 292.354 123.958 286.087 120.053C279.875 116.147 274.899 110.922 271.161 104.376C267.477 97.7751 265.636 90.4867 265.636 82.5107C265.636 76.4599 266.708 70.8216 268.852 65.596C270.996 60.3153 273.937 55.6947 277.676 51.7342C281.469 47.7187 285.867 44.5833 290.87 42.328C295.873 40.0727 301.206 38.945 306.868 38.945C313.63 38.945 319.87 40.5127 325.588 43.6481C331.305 46.7835 336.061 50.9916 339.854 56.2723L321.712 66.0085C319.788 63.8082 317.506 62.103 314.867 60.8929C312.283 59.6827 309.617 59.0776 306.868 59.0776C302.91 59.0776 299.336 60.1778 296.148 62.3781C292.959 64.5233 290.43 67.3837 288.561 70.9592C286.692 74.4796 285.757 78.3301 285.757 82.5107C285.757 86.6362 286.692 90.4867 288.561 94.0621C290.43 97.5826 292.959 100.415 296.148 102.561C299.336 104.706 302.91 105.779 306.868 105.779C309.727 105.779 312.448 105.174 315.032 103.963C317.616 102.698 319.843 101.021 321.712 98.9303Z"
-                            fill="black" class="fill-black/80"/>
+                            fill="black" class="fill-white/60 stroke-white stroke-[2]" />
                         <path
                             d="M388.367 125.911C380.78 125.911 373.853 123.958 367.586 120.053C361.373 116.147 356.398 110.922 352.66 104.376C348.976 97.7751 347.134 90.4867 347.134 82.5107C347.134 76.4599 348.207 70.8216 350.351 65.596C352.495 60.3153 355.436 55.6947 359.174 51.7342C362.968 47.7187 367.366 44.5833 372.369 42.328C377.372 40.0727 382.704 38.945 388.367 38.945C395.954 38.945 402.853 40.8978 409.066 44.8033C415.333 48.7088 420.309 53.962 423.992 60.5628C427.73 67.1637 429.6 74.4796 429.6 82.5107C429.6 88.5064 428.528 94.1171 426.384 99.3428C424.239 104.568 421.271 109.189 417.477 113.205C413.739 117.165 409.368 120.273 404.365 122.528C399.417 124.784 394.085 125.911 388.367 125.911ZM388.367 105.779C392.38 105.779 395.981 104.706 399.17 102.561C402.359 100.415 404.86 97.5826 406.674 94.0621C408.544 90.5417 409.478 86.6912 409.478 82.5107C409.478 78.2201 408.516 74.3146 406.592 70.7941C404.723 67.2187 402.166 64.3858 398.923 62.2955C395.734 60.1503 392.215 59.0776 388.367 59.0776C384.409 59.0776 380.835 60.1503 377.647 62.2955C374.458 64.4408 371.929 67.3012 370.06 70.8766C368.191 74.4521 367.256 78.3301 367.256 82.5107C367.256 86.8562 368.218 90.7892 370.142 94.3097C372.066 97.8301 374.623 100.635 377.812 102.726C381.055 104.761 384.574 105.779 388.367 105.779Z"
-                            fill="black" class="fill-black/80"/>
+                            fill="black" class="fill-white/60 stroke-white stroke-[2]" />
                         <path
                             d="M442.44 123.766V41.2553H462.561V48.5988C465.365 45.6284 468.719 43.2906 472.622 41.5854C476.525 39.8251 480.731 38.945 485.239 38.945C490.957 38.945 496.207 40.2927 500.99 42.9881C505.828 45.6834 509.676 49.2864 512.535 53.7969C515.449 49.2864 519.297 45.6834 524.08 42.9881C528.863 40.2927 534.113 38.945 539.831 38.945C545.879 38.945 551.349 40.4302 556.242 43.4006C561.19 46.316 565.12 50.249 568.034 55.1996C571.003 60.0953 572.487 65.5685 572.487 71.6192V123.766H552.366V76.9824C552.366 73.792 551.569 70.8766 549.974 68.2363C548.435 65.541 546.346 63.3957 543.707 61.8005C541.123 60.1503 538.209 59.3252 534.966 59.3252C531.722 59.3252 528.781 60.1228 526.142 61.718C523.558 63.2582 521.469 65.3484 519.874 67.9888C518.28 70.6291 517.483 73.627 517.483 76.9824V123.766H497.362V76.9824C497.362 73.627 496.592 70.6291 495.052 67.9888C493.513 65.3484 491.424 63.2582 488.785 61.718C486.146 60.1228 483.205 59.3252 479.961 59.3252C476.773 59.3252 473.859 60.1503 471.22 61.8005C468.581 63.3957 466.465 65.541 464.87 68.2363C463.331 70.8766 462.561 73.792 462.561 76.9824V123.766H442.44Z"
-                            fill="black" class="fill-black/80"/>
+                            fill="black" class="fill-white/60 stroke-white stroke-[2]" />
                         <path
                             d="M623.683 125.911C616.096 125.911 609.169 123.958 602.901 120.053C596.689 116.147 591.714 110.894 587.975 104.293C584.292 97.6926 582.45 90.4042 582.45 82.4281C582.45 76.4324 583.522 70.8216 585.666 65.596C587.81 60.3153 590.752 55.6947 594.49 51.7342C598.283 47.7187 602.682 44.5833 607.684 42.328C612.687 40.0727 618.02 38.945 623.683 38.945C630.115 38.945 635.997 40.3202 641.33 43.0706C646.718 45.7659 651.281 49.4789 655.019 54.2095C658.758 58.9401 661.479 64.3308 663.183 70.3816C664.888 76.4324 665.273 82.7582 664.338 89.359H604.056C604.826 92.4394 606.09 95.2173 607.849 97.6926C609.609 100.113 611.835 102.066 614.529 103.551C617.223 104.981 620.274 105.724 623.683 105.779C627.201 105.834 630.39 105.009 633.249 103.303C636.162 101.543 638.581 99.1778 640.506 96.2074L661.039 100.993C657.686 108.309 652.683 114.305 646.031 118.98C639.379 123.601 631.929 125.911 623.683 125.911ZM603.396 74.2596H643.969C643.364 70.9592 642.072 67.9888 640.093 65.3484C638.169 62.6531 635.778 60.5078 632.919 58.9126C630.06 57.3174 626.981 56.5198 623.683 56.5198C620.384 56.5198 617.333 57.3174 614.529 58.9126C611.725 60.4528 609.334 62.5706 607.355 65.2659C605.43 67.9063 604.111 70.9042 603.396 74.2596Z"
-                            fill="black" class="fill-black/80"/>
+                            fill="black" class="fill-white/60 stroke-white stroke-[2]" />
                         <path
                             d="M678.204 89.1115V8.25107H695.192V89.1115H678.204ZM686.78 125.911C683.866 125.911 681.392 124.894 679.358 122.858C677.379 120.823 676.389 118.348 676.389 115.432C676.389 112.572 677.379 110.152 679.358 108.171C681.392 106.191 683.866 105.201 686.78 105.201C689.584 105.201 691.975 106.191 693.955 108.171C695.934 110.152 696.923 112.572 696.923 115.432C696.923 118.348 695.934 120.823 693.955 122.858C691.975 124.894 689.584 125.911 686.78 125.911Z"
-                            fill="black" class="fill-black/80"/>
+                            fill="black" class="fill-white/60 stroke-white stroke-[2]" />
                         <path
                             d="M48.0301 186.616H38.1342L32.8565 223.957H23.0549L28.3327 186.616H20.8401L22.2067 176.809H29.6992L31.7255 162.004H41.5271L39.5008 176.809H49.3966L48.0301 186.616Z"
                             fill="white" class="fill-white/80" />
@@ -96,54 +101,52 @@
                 <!-- Outline -->
                 <path
                     d="M30.9795 1H842.635C859.192 1.00001 872.614 14.4206 872.614 30.9756C872.614 77.7177 910.511 115.609 957.258 115.609H1013.02C1029.58 115.609 1043 129.03 1043 145.585V477.024C1043 493.579 1029.58 507 1013.02 507H164.189C147.633 507 134.211 493.579 134.211 477.024V464.634C134.211 416.181 94.927 376.902 46.4688 376.902H30.9795C14.4223 376.902 1 363.482 1 346.927V30.9756L1.00977 30.2021C1.41355 14.2619 14.2628 1.41381 30.2051 1.00977L30.9795 1Z"
-                    stroke="#0091F3" stroke-width="2" />
-            </svg>
-            <div class="absolute top-0 left-1/2 ml-80 -mt-4">
-                <svg xmlns="http://www.w3.org/2000/svg" width="186" height="108" viewBox="0 0 186 108" fill="none">
-                    <path
-                        d="M0 24C0 10.7452 10.7137 0 23.9298 0H132.158C161.894 0 186 24.1766 186 54C186 83.8234 161.894 108 132.158 108H83.7544C37.4981 108 0 70.3919 0 24Z"
-                        fill="url(#paint0_linear_152_51)" />
-                    <defs>
-                        <linearGradient id="paint0_linear_152_51" x1="0" y1="0" x2="186.406"
-                            y2="143.472" gradientUnits="userSpaceOnUse">
-                            <stop stop-color="#0091F3" />
-                            <stop offset="1" stop-color="#93D3FF" />
-                        </linearGradient>
-                    </defs>
-                </svg>
-            </div>
+                    stroke="#0091F3" stroke-width="2" class="hidden sm:flex" />
 
-            <div class="absolute bottom-0 right-1/2 mr-[355px] -mb-1">
-                <svg xmlns="http://www.w3.org/2000/svg" width="186" height="108" viewBox="0 0 186 108" fill="none">
-                    <path
-                        d="M186 84C186 97.2548 175.286 108 162.07 108H53.8421C24.1059 108 2.86102e-06 83.8234 2.86102e-06 54C2.86102e-06 24.1766 24.1059 7.15256e-07 53.8421 7.15256e-07H102.246C148.502 7.15256e-07 186 37.6081 186 84Z"
-                        fill="url(#paint0_linear_152_53)" />
-                    <defs>
-                        <linearGradient id="paint0_linear_152_53" x1="186" y1="108" x2="-0.406435"
-                            y2="-35.4719" gradientUnits="userSpaceOnUse">
-                            <stop stop-color="#0091F3" />
-                            <stop offset="1" stop-color="#93D3FF" />
-                        </linearGradient>
-                    </defs>
-                </svg>
-            </div>
+                <path
+                    d="M30.9795 1H842.635C859.192 1.00001 872.614 14.4206 872.614 30.9756C872.614 77.7177 910.511 115.609 957.258 115.609H1013.02C1029.58 115.609 1043 129.03 1043 145.585V477.024C1043 493.579 1029.58 507 1013.02 507H164.189C147.633 507 134.211 493.579 134.211 477.024V464.634C134.211 416.181 94.927 376.902 46.4688 376.902H30.9795C14.4223 376.902 1 363.482 1 346.927V30.9756L1.00977 30.2021C1.41355 14.2619 14.2628 1.41381 30.2051 1.00977L30.9795 1Z"
+                    stroke="#f3f4f6" stroke-width="15" class="flex" />
+            </svg>
+            <p
+                class="text-white/80 bg-blue-500/30 backdrop-blur-md border border-white/20 hover:bg-blue-600/30 transition-all px-4 py-2 rounded-[100px] shadow-[0_4px_4px_rgba(0,145,243,0.25)] no-underline absolute top-5 text-xs lg:flex hidden left-1/2 -translate-x-1/2">
+                Develop with <span class="text-[#0091F3] mx-1">❤️</span> by
+                <a href="https://instagram.bayufadayan" class="no-underline">
+                    <span class="italic mx-1">@bayufadayan</span>
+                </a>
+            </p>
         </div>
 
-        {{-- penjelasan aplikasi --}}
-        <article>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Rem iure enim quaerat quam et ipsum deserunt provident
-            fuga tenetur eos placeat asperiores debitis obcaecati dolorum, assumenda accusantium cum nobis incidunt!
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Mollitia voluptatibus, qui labore laudantium rem,
-            dolorem quis cupiditate omnis impedit eveniet, ratione autem. Deleniti modi dicta quasi, et cum iure
-            exercitationem?
-            Lorem ipsum dolor sit, amet consectetur adipisicing elit. Animi dicta hic ullam itaque consequatur magnam quam
-            aliquid molestiae dolorum eveniet at inventore, qui sed nulla dolore debitis, voluptatum deleniti sapiente.
-        </article>
-
         {{-- CTA --}}
-
+        <div class="flex flex-col justify-center items-center gap-2 my-4">
+            <x-button>Selamatkan Sekarang</x-button>
+            <x-button>Lihat History Laporan Anda</x-button>
+        </div>
     </section>
 
+    <section class="relative w-full min-h-[300px] flex items-center justify-center overflow-hidden mt-5 px-5">
+        <!-- Background image -->
+        <img src="https://images.unsplash.com/photo-1656404388836-b35bec6d09ba?q=80&w=868&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+            alt="bg" class="absolute inset-0 w-full h-full object-cover object-center" />
+
+        <!-- Overlay gelap tipis -->
+        <div class="absolute inset-0 bg-black/40"></div>
+
+        <!-- Glass Card -->
+        <article
+            class="relative z-10 mx-auto mt-0 max-w-3xl rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 px-6 py-8 text-center text-white shadow-xl transition-all duration-500 hover:shadow-2xl">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="white" class="mx-auto mb-4 h-8 w-8 opacity-60"
+                viewBox="0 0 24 24">
+                <path
+                    d="M7.17 6A5.01 5.01 0 0 0 2 11v1a5 5 0 0 0 5 5h1v-2H7a3 3 0 0 1-3-3v-1a3 3 0 0 1 3-3h.17V6H7.17Zm10 0A5.01 5.01 0 0 0 12 11v1a5 5 0 0 0 5 5h1v-2h-1a3 3 0 0 1-3-3v-1a3 3 0 0 1 3-3h.17V6H17.17Z" />
+            </svg>
+            <p class="urbanistFont text-base lg:text-xl font-medium leading-relaxed text-white/90">
+                Karena semua kucing berhak hidup.<br />
+                Tapi sebagian dari mereka… butuh diselamatkan hari ini juga.<br />
+                <span class="text-[#0091F3] font-semibold">Rescat.life</span> memandu aksi penyelamatan secara bijak
+                dan penuh empati.
+            </p>
+        </article>
+    </section>
 
     {{-- history section --}}
 @endsection

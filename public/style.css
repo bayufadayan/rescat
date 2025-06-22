@@ -4,3 +4,26 @@
     font-family: "Urbanist", Arial, Helvetica, sans-serif;
     font-optical-sizing: auto;
 }
+
+@keyframes gradientSlide {
+
+    0%,
+    100% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+.gradient-animation {
+    background: linear-gradient(-45deg,
+            #3b82f6,
+            #10b9b0,
+            #3b82f6,
+            #93c5fd
+        );
+    background-size: 400% 400%;
+    animation: gradientSlide 8s ease infinite;
+}
