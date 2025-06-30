@@ -20,11 +20,20 @@
             Selamatkan Lebih Cepat. <br>
         </p>
 
+        <svg class="animate-spin h-10 w-10 border-4 border-blue-500 rounded-full border-t-transparent"
+            viewBox="0 0 24 24"></svg>
+
         <div class="absolute bottom-2 left-1/2 -translate-x-1/2 urbanistFont flex flex-col text-xs text-center italic">
             <p>v. 1.0.0</p>
             <p>Made by @bayufadayan</p>
         </div>
     </div>
+
+    <script>
+        setTimeout(() => {
+            window.location.href = "/";
+        }, 3000);
+    </script>
 </body>
 
 </html>

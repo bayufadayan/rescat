@@ -16,11 +16,12 @@
 </head>
 
 <body class="bg-gray-100 text-gray-800 urbanistFont m-0">
-    <header class="w-full flex items-center justify-center">
-        <img src="{{ asset('images/logo-rescat.png') }}" alt="logo-rescat" 
-        class="w-12 sm:w-14 md:w-16 lg:w-18 h-auto transition-all duration-300 my-2 md:my-4"
-        >
-    </header>
+    @unless (isset($hideHeader) && $hideHeader)
+        <header class="w-full flex items-center justify-center">
+            <img src="{{ asset('images/logo-rescat.png') }}" alt="logo-rescat"
+                class="w-12 sm:w-14 md:w-16 lg:w-18 h-auto transition-all duration-300 my-2 md:my-4">
+        </header>
+    @endunless
 
     <main class="">
         @yield('content')
