@@ -12,7 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('scan_result_details', function (Blueprint $table) {
-            $table->id();
+            $table->ulid('id')->primary();
+            $table->foreignUlid('scan_result_id')->constrained()->onDelete('cascade');
+            $table->string('criteria'); // e.g., 'skin', 'eyes', 'ears', etc.
+            $table->decimal('score', 8, 5);
+            $table->string('remarks'); // e.g., 'Healthy', 'Needs Attention', etc.
+            $table->text('description')->nullable(); // Optional detailed description (AI Agents)
+            $table->text('advice')->nullable(); // Optional advice or recommendations (AI Agents)
+            $table->string('photo_url')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

@@ -13,6 +13,13 @@ return new class extends Migration
     {
         Schema::create('petcares', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
+            $table->text('address');
+            $table->string('phone')->nullable();
+            $table->decimal('latitude', 10, 7)->nullable();
+            $table->decimal('longitude', 10, 7)->nullable();
+            $table->json('opening_hours')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

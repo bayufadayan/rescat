@@ -12,7 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('cats', function (Blueprint $table) {
-            $table->id();
+            $table->ulid('id')->primary();
+            $table->foreignUlid('user_id')->constrained()->onDelete('cascade');
+            $table->string('name');
+            $table->string('breed')->nullable();
+            $table->enum('gender', ['male', 'female'])->nullable();
+            $table->date('birth_date')->nullable();
+            $table->string('avatar')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }
