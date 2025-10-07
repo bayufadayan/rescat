@@ -29,4 +29,8 @@ class Cat extends Model
     {
         return $this->belongsTo(User::class);
     }
+    public function scanSessions()
+    {
+        return $this->hasMany(ScanSession::class, 'cat_id', 'id'); // pk Cat = 'id' (ULID)
+    }
 }

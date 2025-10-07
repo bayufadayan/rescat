@@ -53,4 +53,13 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function cats()
+    {
+        return $this->hasMany(Cat::class);
+    }
+    public function scanSessions()
+    {
+        return $this->hasMany(ScanSession::class, 'user_id', 'id');
+    }
 }

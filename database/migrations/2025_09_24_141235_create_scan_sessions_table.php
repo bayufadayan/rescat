@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('scan_sessions', function (Blueprint $table) {
-            $table->ulid('ulid')->primary();
+            $table->ulid('id')->primary();
             $table->foreignUlid('user_id')->constrained()->onDelete('cascade');
             $table->foreignUlid('cat_id')->constrained()->onDelete('cascade');
             $table->string('scan_type');
