@@ -22,7 +22,7 @@ export default function Background({ image, imageAlt, children }: Props) {
             <img
                 src={image}
                 alt={imageAlt ?? "Onboarding background"}
-                className="absolute inset-0 h-[80%] w-full object-cover object-bottom"
+                className="absolute inset-0 h-[80%] w-full object-cover object-bottom md:object-center"
                 style={{
                     maskImage: "linear-gradient(to bottom, black 50%, transparent 100%)",
                     WebkitMaskImage: "linear-gradient(to bottom, black 50%, transparent 100%)"
