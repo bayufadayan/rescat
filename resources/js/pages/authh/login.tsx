@@ -100,9 +100,9 @@ export default function Login() {
                             </div>
 
                             <div className="flex flex-row items-center justify-center gap-2 text-sm">
-                                <span>Don’t have an account?</span>
+                                <span>Don't have an account?</span>
                                 <TextLink href="/register" className="text-white underline underline-offset-4">
-                                    Sign up
+                                    Create one
                                 </TextLink>
                             </div>
                         </div>
