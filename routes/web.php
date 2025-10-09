@@ -10,6 +10,9 @@ use Inertia\Inertia;
 
 Route::get('/', [AppStartController::class, 'splash'])->name('splash');
 Route::get('/onboarding', [AppStartController::class, 'onboarding'])->name('onboarding');
+Route::get('/login2', function () {
+    return Inertia::render('authh/login');
+})->name('onboarding');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {

@@ -20,9 +20,9 @@ export default function OnboardingPage() {
   const goJump = (i: number) => setIndex(Math.max(0, Math.min(i, total - 1)));
   const goLogin = () => {
     try {
-      router.get("/login");
+      router.get("/login2");
     } catch {
-      window.location.href = "/login";
+      window.location.href = "/login2";
     }
   };
 
