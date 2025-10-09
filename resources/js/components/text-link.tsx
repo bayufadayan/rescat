@@ -12,7 +12,7 @@ export default function TextLink({
     return (
         <Link
             className={cn(
-                'underline underline-offset-4 transition-colors duration-300 ease-out ',
+                'underline-offset-4 transition-colors duration-300 ease-out ',
                 className,
             )}
             {...props}
