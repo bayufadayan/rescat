@@ -1,5 +1,6 @@
 // resources/js/pages/onboarding-page.tsx
 import * as React from "react";
+import { login, register } from '@/routes';
 import { router } from "@inertiajs/react";
 import Background from "@/components/onboarding/background";
 import Content from "@/components/onboarding/content";
@@ -18,13 +19,6 @@ export default function OnboardingPage() {
   const goNext = () => setIndex((i) => Math.min(i + 1, total - 1));
   const goSkip = () => setIndex(total - 1);
   const goJump = (i: number) => setIndex(Math.max(0, Math.min(i, total - 1)));
-  const goLogin = () => {
-    try {
-      router.get("/login2");
-    } catch {
-      window.location.href = "/login2";
-    }
-  };
 
   return (
     <Background image={current.image} imageAlt={current.imageAlt}>
@@ -48,12 +42,13 @@ export default function OnboardingPage() {
           {isLast && (
             <div className="flex flex-col gap-2 mt-6">
               <button
-                onClick={goLogin}
+                onClick={() => router.visit(login())}
                 className="w-full rounded-full bg-white text-sky-700 font-semibold py-3 active:scale-[0.99] transition"
               >
                 Login
               </button>
               <button
+                onClick={() => router.visit(register())}
                 className="w-full rounded-full bg-white/20 border-2 border-white text-white font-semibold py-3 active:scale-[0.99] transition"
               >
                 Sign Up
