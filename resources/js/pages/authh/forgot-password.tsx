@@ -1,23 +1,35 @@
-// src/pages/Login.jsx
+"use client"
+import { useEffect } from "react";
+import PasswordResetLinkController from '@/actions/App/Http/Controllers/Auth/PasswordResetLinkController';
+import { login } from '@/routes';
+import { Form } from '@inertiajs/react';
+import { LoaderCircle } from 'lucide-react';
+import InputError from '@/components/input-error';
+import TextLink from '@/components/text-link';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+
 import AuthLayout from '@/layouts/auth-layout';
-import InputError from "@/components/input-error";
-import { Form } from "@inertiajs/react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { IoCloseCircle } from "react-icons/io5";
-import { LoaderCircle } from "lucide-react";
-import TextLink from "@/components/text-link";
 import { MdAlternateEmail } from "react-icons/md";
 import { cn } from "@/lib/utils";
-import AuthenticatedSessionController from "@/actions/App/Http/Controllers/Auth/AuthenticatedSessionController";
+import { toast } from "sonner";
 
-export default function ForgotPassword() {
+export default function ForgotPassword({ status }: { status?: string }) {
+    useEffect(() => {
+        if (status) {
+            toast.success(status);
+        }
+    }, [status]);
+
     return (
         <AuthLayout
             title="Forgot Password"
             description="Enter your email to receive a password reset link."
         >
-            <Form {...AuthenticatedSessionController.store.form()} resetOnSuccess={['password']} className="flex flex-col gap-6 w-full ">
+            <Form
+                {...PasswordResetLinkController.store.form()}
+                className="flex flex-col gap-6 w-full ">
                 {({ processing, errors }) => (
                     <div className="flex flex-col w-full gap-8">
                         <div className="grid gap-3">
@@ -36,10 +48,9 @@ export default function ForgotPassword() {
                                         id="email"
                                         type="email"
                                         name="email"
-                                        required
                                         autoFocus
                                         tabIndex={1}
-                                        autoComplete="email"
+                                        autoComplete="off"
                                         placeholder="email@example.com"
                                         className={cn(
                                             "border border-white pl-11 pr-10 py-5 text-sm rounded-full placeholder:text-white bg-white/15 backdrop-blur-md",
@@ -56,7 +67,11 @@ export default function ForgotPassword() {
                         {/* Buttons */}
                         <div className="flex flex-col w-full gap-4">
                             <div className="flex flex-col gap-3">
-                                <Button type="submit" className="w-full bg-white text-black py-5" disabled={processing}>
+                                <Button
+                                    type="submit"
+                                    className="w-full bg-white text-black py-5"
+                                    tabIndex={2}
+                                    disabled={processing}>
                                     {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
                                     Send email password reset link
                                 </Button>
@@ -64,7 +79,10 @@ export default function ForgotPassword() {
 
                             <div className="flex flex-row items-center justify-center gap-2 text-sm">
                                 <span>Or return to</span>
-                                <TextLink href="/register" className="text-white underline underline-offset-4">
+                                <TextLink
+                                    href={login()}
+                                    tabIndex={3}
+                                    className="text-white underline underline-offset-4">
                                     Log in
                                 </TextLink>
                             </div>
