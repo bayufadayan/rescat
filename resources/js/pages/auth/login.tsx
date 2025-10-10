@@ -107,7 +107,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                                     <TextLink
                                         href={request()}
                                         className="ml-auto text-xs hover:underline"
-                                        tabIndex={5}
+                                        tabIndex={3}
                                     >
                                         Forgot password?
                                     </TextLink>
@@ -122,6 +122,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                                     type="submit"
                                     className="w-full bg-white text-black py-5"
                                     disabled={processing}
+                                    tabIndex={4}
                                     data-test="login-button">
                                     {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
                                     Log in
@@ -129,15 +130,16 @@ export default function Login({ status, canResetPassword }: LoginProps) {
 
                                 <Button
                                     type="button"
+                                    tabIndex={5}
                                     className="w-full border border-white/50 bg-white/10 text-white py-5">
                                     <FaGoogle />
                                     Log in with Google
                                 </Button>
                             </div>
 
-                            <div className="flex flex-row items-center justify-center gap-2 text-sm">
+                            <div className="flex flex-row items-center justify-center gap-1 text-sm">
                                 <span>Don't have an account?</span>
-                                <TextLink href={register()} tabIndex={5} className="text-white underline underline-offset-4">
+                                <TextLink href={register()} tabIndex={6} className="text-white underline underline-offset-4">
                                     Create one
                                 </TextLink>
                             </div>
