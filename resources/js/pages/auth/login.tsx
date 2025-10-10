@@ -106,7 +106,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                                 {canResetPassword && (
                                     <TextLink
                                         href={request()}
-                                        className="ml-auto text-xs hover:underline"
+                                        className="ml-auto text-sm hover:underline"
                                         tabIndex={3}
                                     >
                                         Forgot password?
