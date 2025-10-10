@@ -77,7 +77,7 @@ export default function ForgotPassword({ status }: { status?: string }) {
                                 </Button>
                             </div>
 
-                            <div className="flex flex-row items-center justify-center gap-2 text-sm">
+                            <div className="flex flex-row items-center justify-center gap-1 text-sm">
                                 <span>Or return to</span>
                                 <TextLink
                                     href={login()}
