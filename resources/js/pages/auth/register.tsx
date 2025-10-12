@@ -164,8 +164,11 @@ export default function Signup() {
                                 </Button>
 
                                 <Button
-                                    type="button"
-                                    className="w-full border border-white/50 bg-white/10 text-white py-5"
+                                    type='button'
+                                    onClick={() => {
+                                        window.location.href = '/auth/google/redirect';
+                                    }}
+                                    className="w-full border border-white/50 bg-white/10 text-white py-5 hover:cursor-pointer"
                                     tabIndex={6}>
                                     <FaGoogle />
                                     Sign up with Google

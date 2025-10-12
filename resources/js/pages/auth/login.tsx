@@ -130,8 +130,11 @@ export default function Login({ status, canResetPassword }: LoginProps) {
 
                                 <Button
                                     type="button"
+                                    onClick={() => {
+                                        window.location.href = '/auth/google/redirect';
+                                    }}
                                     tabIndex={5}
-                                    className="w-full border border-white/50 bg-white/10 text-white py-5">
+                                    className="w-full border border-white/50 bg-white/10 text-white py-5 cursor-pointer">
                                     <FaGoogle />
                                     Log in with Google
                                 </Button>

@@ -1,4 +1,3 @@
-// resources/js/pages/onboarding-page.tsx
 import * as React from "react";
 import { login, register } from '@/routes';
 import { router } from "@inertiajs/react";
