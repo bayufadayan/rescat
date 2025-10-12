@@ -16,11 +16,9 @@ class RoleUserSeeder extends Seeder
      */
     public function run(): void
     {
-        // Roles (guard 'web')
         $adminRole = Role::findOrCreate('admin', 'web');
         $userRole  = Role::findOrCreate('user',  'web');
 
-        // Admin
         $admin = User::firstOrCreate(
             ['email' => 'bayu@rescat.life'],
             [
@@ -31,7 +29,6 @@ class RoleUserSeeder extends Seeder
         );
         $admin->syncRoles([$adminRole->name]);
 
-        // User
         $user = User::firstOrCreate(
             ['email' => 'sieldrigatan@gmail.com'],
             [
