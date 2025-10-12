@@ -25,13 +25,11 @@ class GoogleAuthController extends Controller
 
     public function callback(): RedirectResponse
     {
-        // kalau dev-mu sering bentrok session/cookie: pakai ->stateless()->user()
         $googleUser = Socialite::driver('google')->user();
-
         $email = strtolower($googleUser->getEmail());
 
         $user = DB::transaction(function () use ($googleUser, $email) {
-            // 1) Sudah terhubung?
+            // 1) Sudah linked?
             $linked = User::where('google_id', $googleUser->getId())->first();
             if ($linked) {
                 $linked->update([
@@ -39,10 +37,15 @@ class GoogleAuthController extends Controller
                     'google_refresh_token' => $googleUser->refreshToken ?? null,
                     'avatar'               => $linked->avatar ?: $googleUser->avatar,
                 ]);
+
+                if (is_null($linked->email_verified_at)) {
+                    $linked->markEmailAsVerified();
+                }
+
                 return $linked;
             }
 
-            // 2) Ada akun dengan email yang sama? → hubungkan
+            // 2) Ada akun dengan email yang sama? → link-kan
             $existing = User::where('email', $email)->first();
             if ($existing) {
                 $existing->update([
@@ -50,35 +53,37 @@ class GoogleAuthController extends Controller
                     'google_token'         => $googleUser->token ?? null,
                     'google_refresh_token' => $googleUser->refreshToken ?? null,
                     'avatar'               => $existing->avatar ?: $googleUser->avatar,
-                    'email_verified_at'    => $existing->email_verified_at ?? now(),
                 ]);
+
+                if (is_null($existing->email_verified_at)) {
+                    $existing->markEmailAsVerified();
+                }
+
                 return $existing;
             }
 
             // 3) Buat user baru
             $user = User::create([
-                'name'                  => $googleUser->getName() ?: Str::before($email, '@'),
-                'email'                 => $email,
-                'password'              => Hash::make(Str::random(32)), // dummy
-                'google_id'             => $googleUser->getId(),
-                'google_token'          => $googleUser->token ?? null,
-                'google_refresh_token'  => $googleUser->refreshToken ?? null,
-                'avatar'                => $googleUser->avatar,
-                'email_verified_at'     => now(), // verified via Google
+                'name'                 => $googleUser->getName() ?: Str::before($email, '@'),
+                'email'                => $email,
+                'password'             => Hash::make(Str::random(32)),
+                'google_id'            => $googleUser->getId(),
+                'google_token'         => $googleUser->token ?? null,
+                'google_refresh_token' => $googleUser->refreshToken ?? null,
+                'avatar'               => $googleUser->avatar,
             ]);
 
-            // pastikan role 'user' ada
             Role::findOrCreate('user', 'web');
             $user->assignRole('user');
+
+            $user->markEmailAsVerified();
 
             return $user;
         });
 
-        // login + regenerate session
         Auth::login($user, remember: true);
         request()->session()->regenerate();
 
-        // redirect per-role (admin → /admin/dashboard)
         $redirect = $user->hasRole('admin')
             ? route('admin.dashboard', absolute: false)
             : route('dashboard', absolute: false);
