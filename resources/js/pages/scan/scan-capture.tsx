@@ -1,0 +1,1 @@
+// Halaman Scanning nya, jadi ada kamera yang menyala
