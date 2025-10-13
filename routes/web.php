@@ -8,8 +8,8 @@ use Inertia\Inertia;
 // Route::get('/', function () {
 //     return Inertia::render('welcome');
 // })->name('home');
-
-Route::get('/', [AppStartController::class, 'splash'])->name('splash');
+Route::get('/', [AppStartController::class, 'root']);
+Route::post('/set-splash', [AppStartController::class, 'setSplashSeen']);
 Route::get('/onboarding', [AppStartController::class, 'onboarding'])->name('onboarding');
 
 Route::middleware('guest')->group(function () {
