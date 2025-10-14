@@ -28,7 +28,7 @@ export default function SmallCard({ icon, title, description, href }: SmallCardP
                     filter: "blur(80px)",
                 }}
             />
-            <figure className="w-10 h-10 bg-white rounded-full flex justify-center items-center">
+            <figure className="w-10 h-10 bg-white shrink-0 rounded-full flex justify-center items-center">
                 <img src={icon} alt={`${title} icon`} className='w-6 h-6' />
             </figure>
             <h2 className="text-lg font-semibold">{title}</h2>

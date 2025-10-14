@@ -15,12 +15,10 @@ export default function AuthCustomLayout({
         <main className='min-h-svh max-h-lvh h-screen flex flex-col items-center bg-[linear-gradient(to_bottom,_#0091F3,_#21A6FF)] relative px-4'>
             <div className="absolute w-full h-full bg-[url('/images/background/pink-purple.png')] bg-cover bg-center bg-no-repeat mix-blend-soft-light opacity-60" />
 
-            {/* Logo */}
             <figure className='h-12 mt-10 mb-6'>
                 <img src="/images/icon/logo-rescat.svg" alt="ResCat" className="h-full w-auto object-contain" />
             </figure>
 
-            {/* Card */}
             <div
                 className="
                 relative flex h-fit w-full max-w-lg items-center justify-between
@@ -35,7 +33,6 @@ export default function AuthCustomLayout({
                     WebkitBackgroundClip: "padding-box",
                 }}
             >
-                {/* animasi bubble & liquid */}
                 <style>{`
                     @keyframes liquid-move {
                         0%   { transform: translate(-15%, -10%) rotate(0deg) scale(1.05); }
@@ -49,7 +46,6 @@ export default function AuthCustomLayout({
                     }
                 `}</style>
 
-                {/* efek bubble */}
                 <div aria-hidden style={{
                     position: "absolute",
                     inset: "-30% -40% auto auto",
