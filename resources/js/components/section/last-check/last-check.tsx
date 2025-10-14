@@ -44,6 +44,5 @@ export default function LastCheck() {
                 </div>
             </div>
         </section>
-
     )
 }
