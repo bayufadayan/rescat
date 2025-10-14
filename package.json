@@ -25,6 +25,8 @@
         "typescript-eslint": "^8.23.0"
     },
     "dependencies": {
+        "@dicebear/collection": "^9.2.4",
+        "@dicebear/core": "^9.2.4",
         "@headlessui/react": "^2.2.0",
         "@inertiajs/react": "^2.1.4",
         "@lottiefiles/dotlottie-react": "^0.17.4",

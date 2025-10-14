@@ -1,6 +1,7 @@
 import { Link } from '@inertiajs/react'
 import { ChevronRight } from 'lucide-react'
 import React from 'react'
+import AvatarRandomProfile from '@/components/main/avatar-random/avatar-random-profile';
 
 export default function ProfileCard() {
     return (
@@ -16,8 +17,8 @@ export default function ProfileCard() {
             }}>
             <div className='flex gap-2 p-4 bg-transparent relative'>
                 <div className="absolute w-full h-full bg-[url('/images/background/profile-card-bg.png')] bg-cover bg-center bg-no-repeat inset-0 -z-10 opacity-40" />
-                <figure className='w-14 h-14 shrink-0 grow-0 rounded-full overflow-hidden'>
-                    <img src="/images/background/pink-purple.png" alt="" />
+                <figure className='w-14 h-14 shrink-0 grow-0 rounded-full overflow-hidden bg-white'>
+                    <AvatarRandomProfile size={56} />
                 </figure>
 
                 <div className='flex flex-1 flex-col justify-center gap-1'>
