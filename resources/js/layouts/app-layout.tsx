@@ -11,7 +11,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     <Topbar />
                 </nav>
 
-                <div>{children}</div>
+                <div className='flex flex-col w-full gap-4 mb-10'>{children}</div>
 
                 <Sidebar />
             </main>
