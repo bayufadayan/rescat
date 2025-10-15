@@ -1,20 +1,23 @@
 import React from 'react';
+
 import { login } from '@/routes';
 import { FaGoogle } from "react-icons/fa";
-// import { LoaderCircle } from "lucide-react";
 import { Button } from '@/components/ui/button';
 import TextLink from '@/components/text-link';
+import { router } from '@inertiajs/react';
+import { useRoute } from 'ziggy-js';
+// import { LoaderCircle } from "lucide-react";
 
 export default function BottomSection() {
+    const route = useRoute();
+
     return (
         <div className="flex flex-col gap-2 px-2">
             <Button
                 type="submit"
                 className="w-full bg-[#0091F3] text-white py-5"
                 tabIndex={5}
-                onClick={() => {
-                    window.location.href = '/register';
-                }}
+                onClick={() => { router.visit('register') }}
             >
                 {/* <LoaderCircle className="h-4 w-4 animate-spin" /> */}
                 Sign up
@@ -22,9 +25,7 @@ export default function BottomSection() {
 
             <Button
                 type='button'
-                onClick={() => {
-                    window.location.href = '/auth/google/redirect';
-                }}
+                onClick={() => window.location.href = route('google.redirect')}
                 className="w-full border border-black/50 bg-white/10 text-black py-5 hover:cursor-pointer"
                 tabIndex={6}>
                 <FaGoogle />

@@ -13,8 +13,11 @@ import { FaGoogle } from "react-icons/fa";
 import { LoaderCircle } from "lucide-react";
 import { MdAlternateEmail } from "react-icons/md";
 import { cn } from "@/lib/utils";
+import { useRoute } from 'ziggy-js';
 
 export default function Signup() {
+    const route = useRoute();
+
     return (
         <AuthLayout
             title="Sign up"
@@ -165,9 +168,7 @@ export default function Signup() {
 
                                 <Button
                                     type='button'
-                                    onClick={() => {
-                                        window.location.href = '/auth/google/redirect';
-                                    }}
+                                    onClick={() => window.location.href = route('google.redirect')}
                                     className="w-full border border-white/50 bg-white/10 text-white py-5 hover:cursor-pointer"
                                     tabIndex={6}>
                                     <FaGoogle />

@@ -1,12 +1,14 @@
 import React from 'react';
 import { Link } from '@inertiajs/react';
+import { useRoute } from 'ziggy-js';
 
 export default function BigCard() {
+    const route = useRoute();
     const data = {
         icon: "/images/icon/camera.svg",
         title: "Scan Foto Kucing",
         description: "Periksa foto kucing anda sekarang dengan teknologi AI yang terpercaya.",
-        href: "/scan-options",
+        href: route('scan'),
     }
 
     return (

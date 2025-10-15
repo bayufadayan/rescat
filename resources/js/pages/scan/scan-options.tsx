@@ -1,1 +1,7 @@
-// Memilih service mau face-only atau full body dan tipe nya mau quick atau detail
+import React from 'react'
+
+export default function ScanOptions() {
+  return (
+    <div>ScanOptions</div>
+  )
+}

@@ -1,16 +1,28 @@
 <?php
 
 use App\Http\Controllers\AppStartController;
+use App\Http\Controllers\ScanController;
 use App\Http\Controllers\Auth\GoogleAuthController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-// Route::get('/', function () {
-//     return Inertia::render('welcome');
-// })->name('home');
-Route::get('/', [AppStartController::class, 'root']);
+Route::get('/', [AppStartController::class, 'root'])->name('home');
 Route::post('/set-splash', [AppStartController::class, 'setSplashSeen']);
 Route::get('/onboarding', [AppStartController::class, 'onboarding'])->name('onboarding');
+Route::prefix('scan')->group(function () {
+    Route::get('/', [ScanController::class, 'index'])->name('scan');
+    Route::get('/options', [ScanController::class, 'options'])->name('scan.options');
+});
+Route::prefix('petcares')->group(function () {
+    Route::get('/', function () {
+        return Inertia::render('splash');
+    })->name('petcares');
+});
+Route::prefix('articles')->group(function () {
+    Route::get('/', function () {
+        return Inertia::render('splash');
+    })->name('articles');
+});
 
 Route::middleware('guest')->group(function () {
     Route::get('/auth/google/redirect', [GoogleAuthController::class, 'redirect'])

@@ -1,8 +1,10 @@
-import { Link } from '@inertiajs/react';
 import React from 'react';
+import { Link } from '@inertiajs/react';
 import { useSidebar } from "@/contexts/SidebarContext";
+import { useRoute } from 'ziggy-js';
 
 export default function Topbar() {
+    const route = useRoute();
     const { toggleSidebar } = useSidebar();
 
     return (
@@ -13,7 +15,7 @@ export default function Topbar() {
                 </figure>
             </button>
 
-            <Link href={"/"}>
+            <Link href={route('home')}>
                 <figure>
                     <img src="/images/icon/logo-rescat.svg" alt="ResCat" className="h-full w-auto object-contain" />
                 </figure>

@@ -1,5 +1,6 @@
-import { Link } from '@inertiajs/react'
-import React from 'react'
+import { Link } from '@inertiajs/react';
+import React from 'react';
+import { useRoute } from 'ziggy-js';
 
 interface SmallCardProps {
     icon: string,
@@ -9,6 +10,7 @@ interface SmallCardProps {
 }
 
 export default function SmallCard({ icon, title, description, href }: SmallCardProps) {
+    const route = useRoute();
     return (
         <div
             className="flex-1 rounded-lg p-4 text-white flex flex-col justify-between gap-1 relative overflow-hidden z-10"
@@ -32,7 +34,7 @@ export default function SmallCard({ icon, title, description, href }: SmallCardP
                 <img src={icon} alt={`${title} icon`} className='w-6 h-6' />
             </figure>
             <h2 className="text-lg font-semibold">{title}</h2>
-            <Link href={href} className='flex justify-between items-center'>
+            <Link href={route(href)} className='flex justify-between items-center'>
                 <p className="text-xs text-white/80 flex w-[85%]">{description}</p>
                 <img src="/images/icon/arrow.svg" alt="Arrow" />
             </Link>

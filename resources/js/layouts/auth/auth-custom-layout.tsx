@@ -1,5 +1,5 @@
-// src/layouts/AuthLayout.jsx
 import React from "react";
+
 interface AuthLayoutProps {
     children?: React.ReactNode;
     title?: string;

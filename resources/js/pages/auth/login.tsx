@@ -16,6 +16,7 @@ import { IoCloseCircle } from "react-icons/io5";
 import { FaGoogle } from "react-icons/fa";
 import { LoaderCircle } from "lucide-react";
 import { toast } from "sonner";
+import { useRoute } from 'ziggy-js';
 
 interface LoginProps {
     status?: string;
@@ -23,6 +24,8 @@ interface LoginProps {
 }
 
 export default function Login({ status, canResetPassword }: LoginProps) {
+    const route = useRoute();
+
     useEffect(() => {
         if (status) {
             toast.success(status);
@@ -130,9 +133,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
 
                                 <Button
                                     type="button"
-                                    onClick={() => {
-                                        window.location.href = '/auth/google/redirect';
-                                    }}
+                                    onClick={() => window.location.href = route('google.redirect')}
                                     tabIndex={5}
                                     className="w-full border border-white/50 bg-white/10 text-white py-5 cursor-pointer">
                                     <FaGoogle />

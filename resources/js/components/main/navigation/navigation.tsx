@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
+import { router } from '@inertiajs/react';
+import { useRoute } from 'ziggy-js';
 
 type Tab = 'home' | 'history';
 
 export default function Navigation() {
+    const route = useRoute();
     const [activeTab, setActiveTab] = useState<Tab>('home');
 
     return (
@@ -13,11 +16,13 @@ export default function Navigation() {
                     '-4px -4px 20px 0 rgba(255, 255, 255, 0.25), 4px 4px 20px 0 rgba(255, 255, 255, 0.25)',
             }}
         >
-            {/* Home Button */}
             <button
-                onClick={() => setActiveTab('home')}
-                className={`flex-1 p-1 rounded-full flex items-center justify-center py-3 transition 
-          ${activeTab === 'home' ? 'bg-[#0091F3]' : 'bg-[#E5E8EC]'}`}
+                onClick={() => {
+                    setActiveTab('home');
+                    router.visit(route('home'));
+                }}
+                className={`flex-1 p-1 rounded-full flex items-center justify-center py-3 transition cursor-pointer
+                        ${activeTab === 'home' ? 'bg-[#0091F3]' : 'bg-[#E5E8EC]'}`}
             >
                 <figure className='h-8 w-8'>
                     <img
@@ -32,11 +37,13 @@ export default function Navigation() {
                 </figure>
             </button>
 
-            {/* History Button */}
             <button
-                onClick={() => setActiveTab('history')}
-                className={`flex-1 p-1 rounded-full flex items-center justify-center py-3 transition 
-          ${activeTab === 'history' ? 'bg-[#0091F3]' : 'bg-[#E5E8EC]'}`}
+                onClick={() => {
+                    setActiveTab('history');
+                    router.visit(route('onboarding'));
+                }}
+                className={`flex-1 p-1 rounded-full flex items-center justify-center py-3 transition cursor-pointer 
+                    ${activeTab === 'history' ? 'bg-[#0091F3]' : 'bg-[#E5E8EC]'}`}
             >
                 <figure className='h-8 w-8'>
                     <img

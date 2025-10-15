@@ -1,0 +1,19 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+
+class ScanController extends Controller
+{
+    public function index()
+    {
+        return redirect()->route('scan.options');
+    }
+
+    public function options()
+    {
+        return Inertia::render('scan/scan-options');
+    }
+}

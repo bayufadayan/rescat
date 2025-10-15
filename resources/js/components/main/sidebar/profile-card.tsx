@@ -1,6 +1,7 @@
-import { Link } from '@inertiajs/react'
-import { ChevronRight } from 'lucide-react'
-import React from 'react'
+import React from 'react';
+import { login } from '@/routes';
+import { Link } from '@inertiajs/react';
+import { ChevronRight } from 'lucide-react';
 import AvatarRandomProfile from '@/components/main/avatar-random/avatar-random-profile';
 
 export default function ProfileCard() {
@@ -30,7 +31,7 @@ export default function ProfileCard() {
             <div className='text-xs w-full justify-between text-white flex items-center px-4 py-2 bg-white/10'>
                 <p className='flex'>You're not logged in</p>
 
-                <Link href={"/login"} className='flex gap-1'>
+                <Link href={login()} className='flex gap-1'>
                     <p>Login</p>
                     <ChevronRight size={16} />
                 </Link>
