@@ -2,7 +2,6 @@ import React from 'react';
 import Topbar from '@/components/main/topbar/topbar';
 import Sidebar from '@/components/main/sidebar/sidebar';
 import { SidebarProvider } from "@/contexts/SidebarContext";
-import Navigation from '@/components/main/navigation/navigation';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
     return (
@@ -11,10 +10,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 <nav className="w-full fixed p-4 z-50">
                     <Topbar />
                 </nav>
-
                 <div className='flex flex-col w-full gap-4 mb-10'>{children}</div>
-
-                <Navigation />  
                 <Sidebar />
             </main>
         </SidebarProvider>

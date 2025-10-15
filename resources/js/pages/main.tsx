@@ -3,6 +3,7 @@ import AppLayout from '@/layouts/app-layout';
 import HeroSection from '@/components/section/hero/hero';
 import LastCheck from '@/components/section/last-check/last-check';
 import HistoryPreview from '@/components/section/history-preview/history-preview';
+import Navigation from '@/components/main/navigation/navigation';
 
 export default function MainPage() {
     return (
@@ -10,6 +11,7 @@ export default function MainPage() {
             <HeroSection />
             <LastCheck />
             <HistoryPreview />
+            <Navigation />  
         </AppLayout>
     )
 }

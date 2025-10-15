@@ -1,7 +1,152 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react';
+import AppLayout from '@/layouts/app-layout';
+import { Button } from '@/components/ui/button';
+import { useRoute } from 'ziggy-js';
+import OptionGroup from '@/components/scan/option-group';
+import { OptionItem, OptionValue } from '@/components/scan/option-card';
+import { useLocalStorage } from '@/hooks/use-local-storage';
+import ScanTypeModal, { ScanType } from '@/components/scan/scan-type-modal';
+import BottomSheet from '@/components/scan/bottom-sheet';
+
+const OPTIONS: OptionItem[] = [
+  {
+    value: 'face',
+    title: 'Face only check-up',
+    desc: 'Scan cepat untuk area wajah. Ideal untuk cek harian & ringkas.',
+    icon: '/images/icon/face-only-icon.svg',
+  },
+  {
+    value: 'full',
+    title: 'Full body check-up',
+    desc: 'Pemeriksaan menyeluruh dari ujung kepala hingga kaki.',
+    icon: '/images/icon/full-body-icon.svg',
+  },
+];
 
 export default function ScanOptions() {
+  const route = useRoute();
+  const [selected, setSelected] = useLocalStorage<OptionValue | null>('scanOption', null);
+  const [scanType, setScanType] = useLocalStorage<ScanType | null>('scanType', null);
+  const [modalOpen, setModalOpen] = useState(false);
+
+  // state BottomSheet
+  const [sheetOpen, setSheetOpen] = useState(false);
+
+  const handleSelectOption = (v: OptionValue) => {
+    setSelected(v);
+    setModalOpen(true);
+  };
+
+  const handleConfirmType = (t: ScanType) => {
+    setScanType(t);
+    setModalOpen(false);
+  };
+
+  // klik “Oke, lanjut” => buka bottom sheet
+  const handleNext = () => {
+    if (!selected || !scanType) return;
+    setSheetOpen(true);
+  };
+
+  // optional: reset type saat ganti option (kalau mau)
+  useEffect(() => {
+    // setScanType(null);
+  }, [selected]);
+
+  const selectedTypeLabel =
+    scanType === 'quick' ? 'Quick scan' : scanType === 'detail' ? 'Detail scan' : null;
+
+  // action start scan -> ke route scan.capture
+  const handleStartScan = () => {
+    const url = route('scan.capture') as unknown as string;
+    window.location.href = url;
+  };
+
   return (
-    <div>ScanOptions</div>
-  )
+    <AppLayout>
+      <main className="min-h-svh max-h-lvh h-screen flex flex-col items-center justify-between bg-[linear-gradient(to_bottom,_#0091F3,_#21A6FF)] relative">
+        <div className="absolute w-full h-full bg-[url('/images/background/pink-purple.png')] bg-cover bg-center bg-no-repeat mix-blend-soft-light" />
+
+        {/* content */}
+        <div className="px-4 flex flex-col pt-22 items-center gap-4 w-full">
+          <h1 className="font-semibold text-2xl text-white w-full text-center">
+            Choose check-up type do you want to use
+          </h1>
+
+          <OptionGroup
+            options={OPTIONS}
+            value={selected}
+            onChange={handleSelectOption}
+            ariaLabel="Check-up type selection"
+            selectedTypeLabel={selectedTypeLabel}
+          />
+        </div>
+
+        {/* button */}
+        <div className="flex flex-col w-full gap-2 px-4 pb-8 items-center">
+          <Button
+            type="button"
+            className={[
+              'w-full py-5 transition-all max-w-lg',
+              selected && scanType ? 'bg-white text-black' : 'bg-white/60 text-black/60 cursor-not-allowed',
+            ].join(' ')}
+            onClick={handleNext}
+            disabled={!selected || !scanType}
+          >
+            Oke, lanjut
+          </Button>
+
+          <Button
+            type="button"
+            onClick={() => (window.location.href = route('home') as unknown as string)}
+            className="w-full border border-white/50 bg-white/10 text-white py-5 cursor-pointer max-w-lg"
+          >
+            Back to Home
+          </Button>
+        </div>
+      </main>
+
+      {/* Modal pilih tipe (built-in modal) */}
+      <ScanTypeModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onConfirm={handleConfirmType}
+        defaultValue={scanType}
+      />
+
+      {/* Bottom Sheet Instruksi (kustom, dijamin muncul) */}
+      <BottomSheet open={sheetOpen} onClose={() => setSheetOpen(false)}>
+        {/* Judul bold dan center */}
+        <h3 className="text-center text-lg font-semibold">Instruksi</h3>
+        <p className="sr-only">Ikuti langkah di bawah ini sebelum memulai pemindaian.</p>
+
+        {/* List instruksi bernomor */}
+        <div className="mt-3">
+          <ol className="list-decimal pl-5 space-y-2 text-sm text-neutral-700">
+            <li>Pastikan pencahayaan cukup dan area terlihat jelas.</li>
+            <li>Posisikan perangkat pada jarak yang nyaman & stabil.</li>
+            <li>Hindari gerakan cepat saat pemindaian berlangsung.</li>
+            <li>Bersihkan lensa kamera untuk hasil tajam.</li>
+            <li>Lepas aksesori yang menutupi area pemindaian.</li>
+            <li>Ikuti indikator di layar untuk penyelarasan.</li>
+            <li>Tetap tenang dan bernapas normal.</li>
+            <li>Pastikan baterai cukup & internet stabil.</li>
+            <li>Ulangi pemindaian bila diminta sistem.</li>
+            <li>Simpan hasil jika perlu untuk perbandingan.</li>
+          </ol>
+        </div>
+
+        {/* Tombol Start Scan */}
+        <div className="mt-5">
+          <Button
+            type="button"
+            onClick={handleStartScan}
+            className="w-full py-5 font-semibold bg-[#0091F3] hover:bg-[#0a83da] text-white"
+          >
+            Start Scan
+          </Button>
+        </div>
+      </BottomSheet>
+    </AppLayout>
+  );
 }
