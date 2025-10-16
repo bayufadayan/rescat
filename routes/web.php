@@ -9,6 +9,7 @@ use Inertia\Inertia;
 Route::get('/', [AppStartController::class, 'root'])->name('home');
 Route::post('/set-splash', [AppStartController::class, 'setSplashSeen']);
 Route::get('/onboarding', [AppStartController::class, 'onboarding'])->name('onboarding');
+Route::get('/thankyou', function () { return Inertia::render('thankyou/thankyou'); })->name('thankyou');
 Route::prefix('scan')->group(function () {
     Route::get('/', [ScanController::class, 'index'])->name('scan');
     Route::get('/options', [ScanController::class, 'options'])->name('scan.options');
