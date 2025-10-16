@@ -5,7 +5,6 @@ type BottomSheetProps = {
     open: boolean;
     onClose: () => void;
     children: React.ReactNode;
-    // optional: className untuk konten
     contentClassName?: string;
 };
 
@@ -24,7 +23,6 @@ export default function BottomSheet({
         };
     }, []);
 
-    // lock body scroll saat open
     useEffect(() => {
         const original = document.body.style.overflow;
         if (open) document.body.style.overflow = 'hidden';
@@ -38,13 +36,10 @@ export default function BottomSheet({
 
     return createPortal(
         <div className="fixed inset-0 z-50">
-            {/* Overlay dengan backdrop blur */}
             <div
                 className="absolute inset-0 bg-black/40 backdrop-blur-sm"
                 onClick={onClose}
             />
-
-            {/* Panel bottom */}
             <div
                 role="dialog"
                 aria-modal="true"
@@ -60,14 +55,13 @@ export default function BottomSheet({
                 {children}
             </div>
 
-            {/* keyframes inline via tailwind arbitrary not supported => inject with style tag */}
             <style>
                 {`
-          @keyframes bottomsheet-in {
-            from { transform: translateY(100%); opacity: 0.5; }
-            to { transform: translateY(0); opacity: 1; }
-          }
-        `}
+                    @keyframes bottomsheet-in {
+                        from { transform: translateY(100%); opacity: 0.5; }
+                        to { transform: translateY(0); opacity: 1; }
+                    }
+                `}
             </style>
         </div>,
         document.body

@@ -14,12 +14,14 @@ const OPTIONS: OptionItem[] = [
     title: 'Face only check-up',
     desc: 'Scan cepat untuk area wajah. Ideal untuk cek harian & ringkas.',
     icon: '/images/icon/face-only-icon.svg',
+    selectedIcon: '/images/icon/face-only-icon-selected.svg',
   },
   {
     value: 'full',
     title: 'Full body check-up',
     desc: 'Pemeriksaan menyeluruh dari ujung kepala hingga kaki.',
     icon: '/images/icon/full-body-icon.svg',
+    selectedIcon: '/images/icon/full-body-icon-selected.svg',
   },
 ];
 
@@ -28,8 +30,6 @@ export default function ScanOptions() {
   const [selected, setSelected] = useLocalStorage<OptionValue | null>('scanOption', null);
   const [scanType, setScanType] = useLocalStorage<ScanType | null>('scanType', null);
   const [modalOpen, setModalOpen] = useState(false);
-
-  // state BottomSheet
   const [sheetOpen, setSheetOpen] = useState(false);
 
   const handleSelectOption = (v: OptionValue) => {
@@ -42,23 +42,20 @@ export default function ScanOptions() {
     setModalOpen(false);
   };
 
-  // klik “Oke, lanjut” => buka bottom sheet
   const handleNext = () => {
     if (!selected || !scanType) return;
     setSheetOpen(true);
   };
 
-  // optional: reset type saat ganti option (kalau mau)
   useEffect(() => {
-    // setScanType(null);
-  }, [selected]);
+    setScanType(null);
+  }, [selected, setScanType]);
 
   const selectedTypeLabel =
     scanType === 'quick' ? 'Quick scan' : scanType === 'detail' ? 'Detail scan' : null;
 
-  // action start scan -> ke route scan.capture
   const handleStartScan = () => {
-    const url = route('scan.capture') as unknown as string;
+    const url = route('scan.capture');
     window.location.href = url;
   };
 
@@ -83,30 +80,28 @@ export default function ScanOptions() {
         </div>
 
         {/* button */}
-        <div className="flex flex-col w-full gap-2 px-4 pb-8 items-center">
+        <div className="flex flex-col w-full gap-2 px-4 pb-8 items-center z-10">
           <Button
             type="button"
             className={[
               'w-full py-5 transition-all max-w-lg',
-              selected && scanType ? 'bg-white text-black' : 'bg-white/60 text-black/60 cursor-not-allowed',
+              (selected && scanType) ? 'bg-white text-black active:scale-95 duration-300 ease-in-out cursor-pointer' : 'bg-white/60 text-black/60 cursor-not-allowed backdrop-blur-2xl',
             ].join(' ')}
             onClick={handleNext}
-            disabled={!selected || !scanType}
           >
             Oke, lanjut
           </Button>
 
           <Button
             type="button"
-            onClick={() => (window.location.href = route('home') as unknown as string)}
-            className="w-full border border-white/50 bg-white/10 text-white py-5 cursor-pointer max-w-lg"
+            onClick={() => (window.location.href = route('home'))}
+            className="w-full border border-white/50 bg-white/10 text-white py-5 cursor-pointer max-w-lg backdrop-blur-2xl active:scale-95 transition-all duration-300 ease-in-out"
           >
             Back to Home
           </Button>
         </div>
       </main>
 
-      {/* Modal pilih tipe (built-in modal) */}
       <ScanTypeModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
@@ -114,13 +109,11 @@ export default function ScanOptions() {
         defaultValue={scanType}
       />
 
-      {/* Bottom Sheet Instruksi (kustom, dijamin muncul) */}
       <BottomSheet open={sheetOpen} onClose={() => setSheetOpen(false)}>
-        {/* Judul bold dan center */}
+        <div className="flex h-2 w-[100px] bg-gray-400/80 rounded-full mx-auto mb-3" />
         <h3 className="text-center text-lg font-semibold">Instruksi</h3>
         <p className="sr-only">Ikuti langkah di bawah ini sebelum memulai pemindaian.</p>
 
-        {/* List instruksi bernomor */}
         <div className="mt-3">
           <ol className="list-decimal pl-5 space-y-2 text-sm text-neutral-700">
             <li>Pastikan pencahayaan cukup dan area terlihat jelas.</li>
@@ -141,6 +134,7 @@ export default function ScanOptions() {
           <Button
             type="button"
             onClick={handleStartScan}
+            // onClick={() => (window.location.href = route('home'))}
             className="w-full py-5 font-semibold bg-[#0091F3] hover:bg-[#0a83da] text-white"
           >
             Start Scan

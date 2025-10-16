@@ -1,1 +1,7 @@
-// Halaman Scanning nya, jadi ada kamera yang menyala
+import React from 'react'
+
+export default function ScanCapture() {
+    return (
+        <div>ScanCapture</div>
+    )
+}

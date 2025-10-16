@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Check, Gauge, ScanSearch } from 'lucide-react';
+import { Check } from 'lucide-react';
 
 export type ScanType = 'quick' | 'detail';
 
@@ -16,22 +16,30 @@ const CARD_BASE =
 const CARD_UNSELECTED =
     'bg-neutral-50 border-neutral-200 hover:scale-[1.01] active:scale-[0.99]';
 const CARD_SELECTED =
-    'bg-black text-white border-black shadow-lg';
+    'text-white shadow-lg';
 
 function TypeCard({
     label,
     selected,
     onClick,
     icon,
+    selectedIcon,
+    textColor,
+    textColorSelected = 'text-white',
+    backgroundColor = 'bg-black',
 }: {
     label: string;
     selected: boolean;
     onClick: () => void;
     icon: React.ReactNode;
+    selectedIcon: React.ReactNode;
+    textColor?: string;
+    textColorSelected?: string;
+    backgroundColor?: string;
 }) {
     return (
         <div
-            className={[CARD_BASE, selected ? CARD_SELECTED : CARD_UNSELECTED].join(' ')}
+            className={[CARD_BASE, selected ? [CARD_SELECTED, backgroundColor].join(" ") : CARD_UNSELECTED].join(' ')}
             onClick={onClick}
             role="radio"
             aria-checked={selected}
@@ -46,11 +54,11 @@ function TypeCard({
             {/* checklist pojok kanan */}
             {selected && (
                 <span className="absolute top-2 right-2 inline-flex items-center justify-center w-6 h-6 rounded-full bg-white text-black">
-                    <Check size={16} />
+                    <Check size={16}/>
                 </span>
             )}
-            <div className="mb-3">{icon}</div>
-            <span className="text-sm font-medium">{label}</span>
+            <div className="mb-2">{selected ? selectedIcon : icon}</div>
+            <span className={`text-sm font-medium ${selected ? textColorSelected : textColor}`}>{label}</span>
         </div>
     );
 }
@@ -63,13 +71,10 @@ export default function ScanTypeModal({
 }: Props) {
     const [value, setValue] = useState<ScanType | null>(defaultValue ?? null);
 
-    // focus management + ESC to close
     const panelRef = useRef<HTMLDivElement | null>(null);
     useEffect(() => {
         if (!open) return;
         setValue(defaultValue ?? null);
-
-        // focus pertama ke panel/modal
         const timer = setTimeout(() => {
             panelRef.current?.focus();
         }, 0);
@@ -83,8 +88,8 @@ export default function ScanTypeModal({
             clearTimeout(timer);
             document.removeEventListener('keydown', onEsc);
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [open]);
+
+    }, [defaultValue, onClose, open]);
 
     if (!open) return null;
 
@@ -120,13 +125,19 @@ export default function ScanTypeModal({
                             label="Quick scan"
                             selected={value === 'quick'}
                             onClick={() => setValue('quick')}
-                            icon={<Gauge aria-hidden className="w-8 h-8" />}
+                            icon={<img src="/images/icon/bolt-icon-gradient.svg" alt="Quick scan" className="h-20 w-20" />}
+                            selectedIcon={<img src="/images/icon/bolt-icon.svg" alt="Quick scan" className="h-20 w-20" />}
+                            textColor='bg-gradient-to-tr from-[#FACC15] via-[#FB923C] to-[#D97706] bg-clip-text text-transparent'
+                            backgroundColor='bg-gradient-to-tr from-[#FACC15] via-[#FB923C] to-[#D97706]'
                         />
                         <TypeCard
                             label="Detail scan"
                             selected={value === 'detail'}
                             onClick={() => setValue('detail')}
-                            icon={<ScanSearch aria-hidden className="w-8 h-8" />}
+                            icon={<img src="/images/icon/layer-icon-gradient.svg" alt="Detail scan" className="h-20 w-20" />}
+                            selectedIcon={<img src="/images/icon/layer-icon.svg" alt="Detail scan" className="h-20 w-20" />}
+                            textColor='bg-gradient-to-tr from-[#2DD4BF] via-[#22C55E] to-[#059669] bg-clip-text text-transparent'
+                            backgroundColor='bg-gradient-to-tr from-[#2DD4BF] via-[#22C55E] to-[#059669]'
                         />
                     </div>
 
@@ -141,7 +152,7 @@ export default function ScanTypeModal({
                         </Button>
                         <Button
                             type="button"
-                            className={value ? 'bg-black text-white' : 'bg-neutral-200 text-neutral-500 cursor-not-allowed'}
+                            className={`cursor-pointer active:scale-95 transition-all duration-300 ease-in-out hover:opacity-80 ${value ? 'bg-black text-white' : 'bg-neutral-200 text-neutral-500 cursor-not-allowed'}`}
                             onClick={() => value && onConfirm(value)}
                             disabled={!value}
                         >

@@ -12,6 +12,10 @@ export default function MainPage() {
             <LastCheck />
             <HistoryPreview />
             <Navigation />  
+
+            <div className="flex h-24 w-full relative bg-transparent">
+
+            </div>
         </AppLayout>
     )
 }
