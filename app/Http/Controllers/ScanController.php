@@ -20,4 +20,8 @@ class ScanController extends Controller
     {
         return Inertia::render('scan/scan-capture');
     }
+    public function details()
+    {
+        return Inertia::render('scan/scan-details');
+    }
 }

@@ -13,6 +13,7 @@ Route::prefix('scan')->group(function () {
     Route::get('/', [ScanController::class, 'index'])->name('scan');
     Route::get('/options', [ScanController::class, 'options'])->name('scan.options');
     Route::get('/capture', [ScanController::class, 'capture'])->name('scan.capture');
+    Route::get('/details', [ScanController::class, 'details'])->name('scan.details');
 });
 Route::prefix('petcares')->group(function () {
     Route::get('/', function () {
