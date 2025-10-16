@@ -24,4 +24,9 @@ class ScanController extends Controller
     {
         return Inertia::render('scan/scan-details');
     }
+
+    public function process()
+    {
+        return Inertia::render('scan/scan-process');
+    }
 }
