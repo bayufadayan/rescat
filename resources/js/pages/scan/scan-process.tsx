@@ -1,26 +1,29 @@
-// Halaman loading seperti nunggu hasil, 
-// kalau hasil blm keluar dan pengen ke result tetep ngga bisa,
-// jadi di redrect ke sini
-
 import React from 'react';
 import { Home, Info } from 'lucide-react';
+import { useRoute } from 'ziggy-js';
 
 export default function ScanProcess() {
+    const route = useRoute();
     return (
         <main className='min-h-svh max-h-lvh h-screen flex items-center justify-center bg-[linear-gradient(to_bottom,_#0091F3,_#21A6FF)] relative'>
-            {/* <div className="absolute w-full h-full bg-[url('/images/background/pink-purple.png')] bg-cover bg-center bg-no-repeat mix-blend-soft-light" /> */}
-            <div className="h-full w-full flex flex-col justify-between py-4 px-8">
+            <div className="absolute hidden md:flex w-full h-full bg-[url('/images/background/pink-purple.png')] bg-cover bg-center bg-no-repeat mix-blend-soft-light" />
+            <img src="/images/background/onboard-pattern.png"
+                alt="onboarding-top-pattern"
+                className="absolute flex md:hidden inset-0 h-[30%] w-auto md:w-full md:h-[20%] object-cover mix-blend-screen opacity-50 object-left"
+            />
+            <img src="/images/background/onboard-pattern.png"
+                alt="onboarding-top-pattern"
+                className="absolute flex md:hidden bottom-0 left-0 h-[30%] w-auto md:w-full md:h-[20%] object-cover mix-blend-screen opacity-50 object-left scale-x-[-1] scale-y-[-1]"
+            />
+            <div className="h-full w-full flex flex-col justify-between py-4 px-8 z-10">
                 <div className='flex justify-between items-center w-full  text-white'>
-                    <button><Home /></button>
+                    <button onClick={() => (window.location.href = route('home'))} className='cursor-pointer'><Home /></button>
                     <h4 className='font-bold text-xl text-center flex-1'>Scanning...</h4>
                     <button className='invisible'><Home /></button>
                 </div>
                 <div className='flex items-center justify-center flex-col relative'>
-                    {/* Code di sini */}
                     <div className="flex flex-col items-center gap-6">
-                        {/* Avatar + Circular Progress */}
                         <div className="relative h-72 w-72">
-                            {/* Ring statis tipis sebagai latar */}
                             <svg
                                 viewBox="0 0 120 120"
                                 className="absolute inset-0 h-full w-full"
@@ -35,14 +38,11 @@ export default function ScanProcess() {
                                     strokeWidth="8"
                                 />
                             </svg>
-
-                            {/* Arc berputar (indeterminate) */}
                             <svg
                                 viewBox="0 0 120 120"
                                 className="absolute inset-0 h-full w-full animate-[spin_1.3s_linear_infinite]"
                                 aria-hidden="true"
                             >
-                                {/* gunakan strokeDasharray agar hanya sebagian lingkaran yang terlihat */}
                                 <circle
                                     cx="60"
                                     cy="60"
@@ -51,12 +51,9 @@ export default function ScanProcess() {
                                     stroke="white"
                                     strokeLinecap="round"
                                     strokeWidth="8"
-                                    // arc ~ 80px dan sisa "kosong"
                                     strokeDasharray="80 400"
                                 />
                             </svg>
-
-                            {/* Avatar bulat di tengah */}
                             <img
                                 src="https://picsum.photos/seed/scan-face/600/600"
                                 alt="subject"
@@ -64,7 +61,6 @@ export default function ScanProcess() {
                             />
                         </div>
 
-                        {/* Status text */}
                         <div className="flex flex-col items-center gap-2">
                             <p className="flex items-center gap-2 text-white/95">
                                 <span className="inline-block h-3 w-3 animate-[spin_1s_linear_infinite] rounded-full border-2 border-white border-t-transparent" />
