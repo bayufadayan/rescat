@@ -26,7 +26,7 @@ export default function Header() {
     };
 
     return (
-        <div className="pointer-events-auto absolute left-0 right-0 top-0 z-20 flex items-center justify-between px-4 py-1 mt-2">
+        <div className="pointer-events-auto w-full flex items-center justify-between px-4 py-1 mt-2 max-w-md">
             <button className="p-2 rounded-full" onClick={toggleFlashlight}>
                 {isFlashlightOn ? <ZapOff size={28} /> : <Zap  size={28} />}
             </button>

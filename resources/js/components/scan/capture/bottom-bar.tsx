@@ -1,5 +1,4 @@
-import React from 'react'
-import { RotateCw, Image as ImageIcon } from 'lucide-react'
+import React from 'react';
 
 type BottomBarProps = {
     onCapture: () => void
@@ -8,14 +7,16 @@ type BottomBarProps = {
 }
 
 const BottomBar: React.FC<BottomBarProps> = ({ onCapture, onFlip, lastShot }) => (
-    <div className="pointer-events-auto absolute inset-x-0 bottom-6 z-20 flex items-center justify-center gap-8 px-6">
+    <div className="pointer-events-auto w-full z-20 flex items-center justify-between gap-8 md:gap-16 px-6 max-w-md">
         <button
             type="button"
-            className="flex h-12 w-12 items-center justify-center rounded-full bg-black/50 backdrop-blur-sm"
+            className="flex h-12 w-12 items-center justify-center rounded-xl bg-black/30 backdrop-blur-sm"
             title="Rotate Camera"
             onClick={onFlip}
         >
-            <RotateCw className="h-5 w-5 text-white/90" />
+            <figure>
+                <img src="/images/icon/rotate-camera-icon.svg" alt="rotate-camera-icon.svg" />
+            </figure>
         </button>
 
         {/* Shutter */}
@@ -23,19 +24,32 @@ const BottomBar: React.FC<BottomBarProps> = ({ onCapture, onFlip, lastShot }) =>
             type="button"
             aria-label="Ambil Gambar"
             onClick={onCapture}
-            className="grid h-20 w-20 place-items-center rounded-full bg-white shadow-lg active:scale-95"
+            className="grid h-22 w-22 place-items-center rounded-full bg-[#2C2C2C] shadow-lg active:scale-95 p-2 border-4 border-[#7B7B7B]"
         >
-            <span className="block h-16 w-16 rounded-full border-4 border-gray-300" />
+            <figure className="w-full h-full aspect-square bg-transparent rounded-full overflow-hidden">
+                <img src="/images/icon/shutter-icon.svg" alt="shutter-icon" className='w-full h-full object-fit object-cover' />
+            </figure>
         </button>
 
         {/* Thumbnail */}
-        <div className="h-12 w-12 overflow-hidden rounded-lg border border-white/50 bg-black/40 backdrop-blur-sm">
+        <div className={`h-12 w-12 overflow-hidden rounded-lg ${lastShot && " border border-white/50 bg-black/40 backdrop-blur-sm"}`}>
             {lastShot ? (
                 <img src={lastShot} alt="Terakhir" className="h-full w-full object-cover" />
             ) : (
-                <div className="grid h-full w-full place-items-center">
-                    <ImageIcon className="h-5 w-5 text-white/80" />
-                </div>
+                <>
+                    <input
+                        id="gallery"
+                        type="file"
+                        name="gallery"
+                        accept="image/*"
+                        className="hidden"
+                    />
+                    <label htmlFor="gallery">
+                        <figure className="grid h-full w-full place-items-center cursor-pointer">
+                            <img src="/images/icon/gallery-icon.svg" alt="gallery-icon.svg" />
+                        </figure>
+                    </label>
+                </>
             )}
         </div>
     </div>

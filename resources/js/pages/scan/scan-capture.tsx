@@ -5,6 +5,7 @@ import WarningBanner from '@/components/scan/capture/warning-banner'
 import BottomBar from '@/components/scan/capture/bottom-bar'
 import CameraStage from '@/components/scan/capture/camera-stage'
 import { computeCropFromOverlay } from '@/lib/helper/compute-crop-from-overlay'
+import WatermarkBackground from '@/components/scan/capture/watermark-bg';
 
 export default function ScanCapture() {
     const webcamRef = useRef<Webcam>(null)
@@ -48,14 +49,20 @@ export default function ScanCapture() {
         ctx.drawImage(video, sx, sy, size, size, 0, 0, size, size)
 
         const dataUrl = canvas.toDataURL('image/png')
-        setLastShot(dataUrl)    
+        setLastShot(dataUrl)
     }, [])
 
     const flipCamera = (): void => setFront((p) => !p)
 
     return (
-        <div className="relative min-h-screen w-full text-white">
-            <Header />
+        <div className="relative min-h-screen w-full text-white bg-neutral-800">
+            <div className='w-full h-full fixed z-0'>
+                <WatermarkBackground />
+            </div>
+
+            <div className="absolute left-0 right-0 top-0  z-20 flex w-full h-16 justify-center items-center">
+                <Header />
+            </div>
 
             <div className="p-0 w-full h-screen">
                 <CameraStage
@@ -73,7 +80,9 @@ export default function ScanCapture() {
 
             <WarningBanner>Pastikan wajah kucing terlihat pada kotak terang.</WarningBanner>
 
-            <BottomBar onCapture={handleCapture} onFlip={flipCamera} lastShot={lastShot} />
+            <div className="absolute inset-x-0 bottom-6 z-20 flex w-full h-16 justify-center items-center">
+                <BottomBar onCapture={handleCapture} onFlip={flipCamera} lastShot={lastShot} />
+            </div>
 
             {error && (
                 <div className="fixed inset-x-0 bottom-0 z-30 px-4 pb-24">
