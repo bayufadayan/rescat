@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react"
-import HeaderBar from "@/components/scan/details/header-bar"
-import MediaPreview from "@/components/scan/details/media-preview"
-import BottomForm from "@/components/scan/details/bottom-form"
-import StickyPageCTA from "@/components/scan/details/sticky-page-cta"
-import type { Coords, GeoStatus, Address } from "@/types/geo"
-import { reverseGeocode } from "@/lib/helper/reverse-geocode"
+import React, { useEffect, useState } from "react";
+import MediaPreview from "@/components/scan/details/media-preview";
+import BottomForm from "@/components/scan/details/bottom-form";
+import StickyPageCTA from "@/components/scan/details/sticky-page-cta";
+import type { Coords, GeoStatus, Address } from "@/types/geo";
+import { reverseGeocode } from "@/lib/helper/reverse-geocode";
+import SideForm from "@/components/scan/details/side-form";
 
 export default function ScanDetails() {
     const [open, setOpen] = useState(false)
@@ -48,24 +48,41 @@ export default function ScanDetails() {
     }, [])
 
     return (
-        <div className="min-h-screen w-full bg-[#0da0ff] pb-28 text-slate-900">
-            <HeaderBar />
-            <MediaPreview />
+        <div className="min-h-screen w-full bg-[#0da0ff] text-slate-900 flex justify-center">
+            <div className="w-full justify-between">
+                <div className="flex w-full h-full flex-col justify-center items-center lg:flex-row lg:items-start lg:justify-center px-4 pt-16 lg:px-0 lg:pt-0">
+                    <div className="flex-1 flex items-center justify-center h-full">
+                        <MediaPreview />
+                    </div>
 
-            <StickyPageCTA onClick={() => setOpen(true)} />
+                    <div className="flex md:hidden flex-1 px-4">
+                        <BottomForm
+                            open={open}
+                            setOpen={setOpen}
+                            status={geoStatus}
+                            coords={coords}
+                            address={addr}
+                            updatedAt={updatedAt}
+                            refreshLocation={askLocation}
+                            clearLocation={clearLocation}
+                        />
+                    </div>
 
-            <div className="mx-auto w-full max-w-[480px]">
-                <BottomForm
-                    open={open}
-                    setOpen={setOpen}
-                    status={geoStatus}
-                    coords={coords}
-                    address={addr}
-                    updatedAt={updatedAt}
-                    refreshLocation={askLocation}
-                    clearLocation={clearLocation}
-                />
+                    {/* Desktop pakai panel samping */}
+                    <div className="hidden md:flex flex-1 justify-center items-center">
+                        <SideForm
+                            status={geoStatus}
+                            coords={coords}
+                            address={addr}
+                            updatedAt={updatedAt}
+                            refreshLocation={askLocation}
+                            clearLocation={clearLocation}
+                        />
+                    </div>
+                </div>
+
+                <StickyPageCTA onClick={() => setOpen(true)} className="lg:hidden" />
             </div>
         </div>
-    )
+    );
 }

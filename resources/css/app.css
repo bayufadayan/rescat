@@ -143,4 +143,23 @@
         @apply bg-background text-foreground;
         @apply font-sans;
     }
+
+    .custom-scroll::-webkit-scrollbar {
+        height: 6px;
+    }
+
+    .custom-scroll::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .custom-scroll::-webkit-scrollbar-thumb {
+        background-color: rgba(0, 0, 0, 0.3);
+        border-radius: 9999px;
+        transition: background-color 0.2s ease;
+    }
+
+    .custom-scroll::-webkit-scrollbar-thumb:hover {
+        background-color: rgba(0, 0, 0, 0.6);
+    }
+
 }
