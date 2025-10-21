@@ -1,6 +1,7 @@
-import React from 'react'
-import Webcam from 'react-webcam'
-import { Info, Camera as CameraIcon } from 'lucide-react'
+import React from "react";
+import Webcam from 'react-webcam';
+import { Camera as CameraIcon } from 'lucide-react';
+import InfoTooltip from "./tooltip-info";
 
 type CameraStageProps = {
     webcamRef: React.MutableRefObject<Webcam | null>
@@ -45,9 +46,7 @@ const CameraStage: React.FC<CameraStageProps> = ({
             <div className="pointer-events-none absolute inset-0 z-10 flex items-start justify-center">
                 <div ref={frameRef} className="relative aspect-square w-[82%] rounded-2xl mt-24">
                     <div className="absolute inset-0 rounded-2xl border-2 border-white/80 shadow-[0_0_0_2000px_rgba(0,0,0,0.55)]" />
-                    <div className="absolute right-2 top-2 rounded-full bg-black/60 p-1.5">
-                        <Info className="h-4 w-4 text-white/90" />
-                    </div>
+                    <InfoTooltip />
                 </div>
             </div>
 
