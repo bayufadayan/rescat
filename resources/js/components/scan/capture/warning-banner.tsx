@@ -1,12 +1,13 @@
-import React from 'react'
-import { AlertCircle } from 'lucide-react'
+import React from 'react';
 
 type WarningBannerProps = { children: React.ReactNode }
 
 const WarningBanner: React.FC<WarningBannerProps> = ({ children }) => (
-    <div className="pointer-events-none absolute left-0 right-0 bottom-28 z-20 flex w-full justify-center px-4">
-        <div className="flex w-full max-w-md items-start gap-2 rounded-xl bg-white/95 p-3 text-sm text-gray-900 shadow">
-            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+    <div className="pointer-events-none absolute left-0 right-0 bottom-28 z-20 flex w-full justify-center px-4 mb-2">
+        <div className="flex max-w-md items-center gap-1.5 rounded-full bg-white px-2 py-2 text-sm text-gray-900 shadow justify-center w-fit font-medium">
+            <figure className='w-6 h-6 overflow-hidden'>
+                <img src="/images/icon/warning-icon.svg" alt="warning-icon" className='w-full h-full object-center object-cover'/>
+            </figure>
             <p className="leading-snug">{children}</p>
         </div>
     </div>
