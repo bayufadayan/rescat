@@ -83,7 +83,7 @@ export default function ScanCapture() {
                 </div>
             )}
 
-            <div className="pointer-events-none fixed bottom-2 left-0 right-0 z-0 mx-auto w-full max-w-md text-center text-xs text-white/50">
+            <div className="pointer-events-none fixed bottom-1 left-0 right-0 z-0 mx-auto w-full max-w-md text-center text-xs text-white/50">
                 Kamera: <span className="uppercase">{front ? 'user' : 'environment'}</span>
             </div>
         </div>

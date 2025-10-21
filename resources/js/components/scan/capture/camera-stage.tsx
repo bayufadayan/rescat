@@ -24,7 +24,7 @@ const CameraStage: React.FC<CameraStageProps> = ({
     return (
         <div
             ref={containerRef}
-            className="relative mx-auto h-screen w-full max-w-lg overflow-hidden md:rounded-3xl bg-black"
+            className="relative mx-auto h-screen w-full max-w-lg overflow-hidden md:rounded-3xl bg-white"
         >
             <Webcam
                 ref={webcamRef}

@@ -1,161 +1,115 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { Check } from 'lucide-react';
 
 type ScanTarget = 'fullbody' | 'faceonly';
 type ScanMode = 'quick' | 'detail';
 
-type ScantypePickerProps = {
-    defaultTarget?: ScanTarget;
-    defaultMode?: ScanMode;
-    onChange?: (sel: { target: ScanTarget; mode: ScanMode }) => void;
+type Props = {
+    value: { target: ScanTarget; mode: ScanMode };
+    onChange: (v: { target: ScanTarget; mode: ScanMode }) => void;
     className?: string;
 };
 
-const CheckIcon = ({ className = '' }) => (
-    <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        aria-hidden="true"
-        className={className}
-    >
-        <path d="M20 7L9.5 17.5 4 12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-);
-
-export default function ScantypePicker({
-    defaultTarget = 'faceonly',
-    defaultMode = 'quick',
-    onChange,
-    className = '',
-}: ScantypePickerProps) {
-    const [target, setTarget] = useState<ScanTarget>(defaultTarget);
-    const [mode, setMode] = useState<ScanMode>(defaultMode);
-
-    const handleTarget = (t: ScanTarget) => {
-        setTarget(t);
-        onChange?.({ target: t, mode });
-    };
-
-    const handleMode = (m: ScanMode) => {
-        setMode(m);
-        onChange?.({ target, mode: m });
-    };
-
-    const icons = {
-        faceonly: {
-            idle: '/images/icon/face-only-icon.svg',
-            selected: '/images/icon/face-only-icon-selected.svg',
-            label: 'Face Only',
-        },
-        fullbody: {
-            idle: '/images/icon/full-body-icon.svg',
-            selected: '/images/icon/full-body-icon-selected.svg',
-            label: 'Full Body',
-        },
-    } as const;
+export default function ScantypePicker({ value, onChange, className = '' }: Props) {
+    const { target, mode } = value;
 
     return (
         <div
-            className={[
-                // darker container
-                'w-[300px] md:w-[400px] rounded-2xl p-3 md:p-4',
-                'bg-neutral-950/70 backdrop-blur border border-white/10 shadow-sm',
-                'text-white flex flex-col',
-                className,
-            ].join(' ')}
+            className={['w-[300px] rounded-2xl p-3 bg-neutral-900/80 backdrop-blur', className].join(' ')}
+            onClick={(e) => e.stopPropagation()}
         >
-            {/* Scan Target */}
-            <div className="space-y-2">
-                <p className="text-xs md:text-sm font-medium text-neutral-300">Scan Target</p>
-                <div className="grid grid-cols-2 gap-3">
-                    {(['faceonly', 'fullbody'] as ScanTarget[]).map((key) => {
-                        const selected = target === key;
-                        const data = icons[key];
-                        return (
-                            <button
-                                key={key}
-                                type="button"
-                                aria-pressed={selected}
-                                onClick={() => handleTarget(key)}
-                                className={[
-                                    'relative aspect-square w-full rounded-2xl flex items-center justify-center',
-                                    'transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-neutral-400/60',
-                                    'ring-1 ring-inset',
-                                    selected
-                                        ? 'bg-neutral-900 ring-neutral-800'
-                                        : 'bg-neutral-900/60 ring-neutral-800/60 hover:bg-neutral-900/80',
-                                ].join(' ')}
-                            >
-                                {/* check circle (top-right) when selected */}
-                                {selected && (
-                                    <span
-                                        className="absolute top-2 right-2 h-6 w-6 rounded-full bg-emerald-500 text-white
-                               grid place-items-center shadow ring-1 ring-white/60"
-                                        aria-hidden="true"
-                                    >
-                                        <CheckIcon className="h-4 w-4" />
-                                    </span>
-                                )}
-
-                                <img
-                                    src={selected ? data.selected : data.idle}
-                                    alt={data.label}
-                                    className="h-12 w-12 md:h-14 md:w-14 select-none pointer-events-none"
-                                    draggable={false}
-                                />
-                                <span
-                                    className={[
-                                        'absolute bottom-2 left-1/2 -translate-x-1/2 text-[11px] md:text-xs font-medium',
-                                        selected ? 'text-white' : 'text-neutral-300',
-                                    ].join(' ')}
-                                >
-                                    {data.label}
-                                </span>
-                            </button>
-                        );
-                    })}
+            <div className="mb-3">
+                <p className="text-xs text-neutral-300">Scan Target</p>
+                <div className="flex gap-2 mt-2">
+                    <button
+                        onClick={() => onChange({ target: 'faceonly', mode })}
+                        aria-pressed={target === 'faceonly'}
+                        className={`flex flex-col gap-2 justify-center items-center px-3 py-2 rounded-lg flex-1 border-2 relative ${target === 'faceonly' ? 'bg-neutral-800 border-white' : 'bg-neutral-700/50 border-transparent'
+                            }`}
+                    >
+                        <img
+                            src="/images/icon/face-only-icon-selected.svg"
+                            alt="face-cat-icon"
+                            className={`scale-90 -mb-1 object-center object-cover ${target === 'faceonly' ? 'opacity-100' : 'opacity-50'
+                                }`}
+                        />
+                        <span className={`text-sm ${target === 'faceonly' ? 'opacity-100' : 'opacity-50'}`}>
+                            Face only check-up
+                        </span>
+                        {target === 'faceonly' && (
+                            <div className="absolute w-4 h-4 flex items-center justify-center bg-white rounded-full top-1.5 right-1.5">
+                                <Check className="text-neutral-800" size={12} />
+                            </div>
+                        )}
+                    </button>
+                    <button
+                        onClick={() => onChange({ target: 'fullbody', mode })}
+                        aria-pressed={target === 'fullbody'}
+                        className={`flex flex-col gap-2 justify-center items-center px-3 py-2 rounded-lg flex-1 border-2 relative ${target === 'fullbody' ? 'bg-neutral-800 border-white' : 'bg-neutral-700/50 border-transparent'
+                            }`}
+                    >
+                        <img
+                            src="/images/icon/full-body-icon-selected.svg"
+                            alt="face-cat-icon"
+                            className={`scale-90 -mb-1 object-center object-cover ${target === 'fullbody' ? 'opacity-100' : 'opacity-50'
+                                }`}
+                        />
+                        <span className={`text-sm ${target === 'fullbody' ? 'opacity-100' : 'opacity-50'}`}>
+                            Full body check-up
+                        </span>
+                        {target === 'fullbody' && (
+                            <div className="absolute w-4 h-4 flex items-center justify-center bg-white rounded-full top-1.5 right-1.5">
+                                <Check className="text-neutral-800" size={12} />
+                            </div>
+                        )}
+                    </button>
                 </div>
             </div>
 
-            {/* Divider */}
-            <div className="my-3 md:my-4 h-px bg-white/10" />
-
-            {/* Scan Type */}
-            <div className="space-y-2">
-                <p className="text-xs md:text-sm font-medium text-neutral-300">Scan Type</p>
-                <div className="flex items-center gap-2">
-                    {(['quick', 'detail'] as ScanMode[]).map((m) => {
-                        const selected = mode === m;
-                        return (
-                            <button
-                                key={m}
-                                type="button"
-                                aria-pressed={selected}
-                                onClick={() => handleMode(m)}
-                                className={[
-                                    'px-3 md:px-4 py-1.5 rounded-full text-xs md:text-sm font-medium',
-                                    'ring-1 ring-inset transition-colors duration-200 flex items-center gap-2',
-                                    selected
-                                        ? 'bg-neutral-900 text-white ring-neutral-800'
-                                        : 'bg-neutral-900/50 text-neutral-300 ring-neutral-800/60 hover:bg-neutral-900/70',
-                                    'focus:outline-none focus:ring-2 focus:ring-neutral-400/60',
-                                ].join(' ')}
-                            >
-                                {/* left-aligned check for the selected pill */}
-                                {selected && (
-                                    <span
-                                        className="inline-grid place-items-center h-4 w-4 rounded-full bg-emerald-500 text-white
-                               ring-1 ring-white/60"
-                                        aria-hidden="true"
-                                    >
-                                        <CheckIcon className="h-3 w-3" />
-                                    </span>
-                                )}
-                                {m === 'quick' ? 'Quick Scan' : 'Detail Scan'}
-                            </button>
-                        );
-                    })}
+            <div>
+                <p className="text-xs text-neutral-300">Scan Type</p>
+                <div className="flex gap-2 mt-2">
+                    <button
+                        onClick={() => onChange({ target, mode: 'quick' })}
+                        aria-pressed={mode === 'quick'}
+                        className={` flex justfy-center items-center gap-2 px-3 py-1 rounded-full border ${mode === 'quick' ? 'bg-neutral-800 border-white' : 'bg-neutral-700/50 border-transparent'
+                            }`}
+                    >
+                        {mode === 'quick' && (
+                            <div className="w-4 h-4 flex items-center justify-center bg-white rounded-full top-1.5 right-1.5">
+                                <Check className="text-neutral-800" size={12} />
+                            </div>
+                        )}
+                        <span className={`${mode === 'quick' ? 'opacity-100' : 'opacity-50'}`}>Quick</span>
+                    </button>
+                    <button
+                        onClick={() => onChange({ target, mode: 'detail' })}
+                        aria-pressed={mode === 'detail'}
+                        className={` flex justfy-center items-center gap-2 px-3 py-1 rounded-full border ${mode === 'detail' ? 'bg-neutral-800 border-white' : 'bg-neutral-700/50 border-transparent'
+                            }`}
+                    >
+                        {mode === 'detail' && (
+                            <div className="w-4 h-4 flex items-center justify-center bg-white rounded-full top-1.5 right-1.5">
+                                <Check className="text-neutral-800" size={12} />
+                            </div>
+                        )}
+                        <span className={`${mode === 'detail' ? 'opacity-100' : 'opacity-50'}`}>Detail</span>
+                    </button>
                 </div>
             </div>
+
+            <div className="h-[1px] w-full rounded-full bg-white mt-5 mb-3 opacity-10"></div>
+            <h5 className="flex justify-between mt-2 text-sm font-medium text-gray-300">
+                <span>You Choose</span>
+                <span>
+                    <span className="ml-2 px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 font-semibold">
+                        {target}
+                    </span>
+                    <span className="ml-2 px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 font-semibold">
+                        {mode}
+                    </span>
+                </span>
+            </h5>
         </div>
     );
 }
