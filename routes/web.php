@@ -16,6 +16,7 @@ Route::prefix('scan')->group(function () {
     Route::get('/capture', [ScanController::class, 'capture'])->name('scan.capture');
     Route::get('/details', [ScanController::class, 'details'])->name('scan.details');
     Route::get('/process', [ScanController::class, 'process'])->name('scan.process');
+    Route::get('/results', [ScanController::class, 'results'])->name('scan.results');
 });
 Route::prefix('petcares')->group(function () {
     Route::get('/', function () {
