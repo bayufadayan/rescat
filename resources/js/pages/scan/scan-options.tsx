@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { Button } from '@/components/ui/button';
 import { useRoute } from 'ziggy-js';
-import OptionGroup from '@/components/scan/option-group';
-import { OptionItem, OptionValue } from '@/components/scan/option-card';
+import OptionGroup from '@/components/scan/options/option-group';
+import { OptionItem, OptionValue } from '@/components/scan/options/option-card';
 import { useLocalStorage } from '@/hooks/use-local-storage';
-import ScanTypeModal, { ScanType } from '@/components/scan/scan-type-modal';
-import BottomSheet from '@/components/scan/bottom-sheet';
+import ScanTypeModal, { ScanType } from '@/components/scan/options/scan-type-modal';
+import BottomSheet from '@/components/scan/options/bottom-sheet';
 
 const OPTIONS: OptionItem[] = [
   {
