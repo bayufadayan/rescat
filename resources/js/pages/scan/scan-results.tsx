@@ -4,6 +4,8 @@ import ResultHeader from '@/components/scan/results/main/header';
 import HeaderNavigation from '@/components/scan/results/main/header-navigation';
 import WarningBanner from '@/components/scan/results/main/waning-banner';
 import PhotoViewer from '@/components/scan/results/summary/photo-viewer';
+import AnalysisResultCard from '@/components/scan/results/summary/analysis-result-card';
+import BackToHome from '@/components/scan/results/main/back-to-home-button';
 
 export default function ScanResults() {
     return (
@@ -20,7 +22,14 @@ export default function ScanResults() {
                 <div className='flex flex-col px-4 gap-4'>
                     <WarningBanner />
                     <PhotoViewer />
-                    
+                    <AnalysisResultCard />
+                    <BackToHome />
+                </div>
+
+                <p className='w-full text-center'>Tab 2</p>
+
+                <div className='flex flex-col px-4 gap-4'>
+
                 </div>
             </div>
         </AppLayout>
