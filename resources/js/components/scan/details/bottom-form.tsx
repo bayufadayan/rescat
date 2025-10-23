@@ -1,8 +1,10 @@
-import React, { useState } from "react"
-import * as Drawer from "vaul"
-import { Shield } from "lucide-react"
-import LocationCard from "./location-card"
-import type { GeoStatus, Coords, Address } from "@/types/geo"
+import React, { useState } from "react";
+import * as Drawer from "vaul";
+import { Shield } from "lucide-react";
+import LocationCard from "./location-card";
+import type { GeoStatus, Coords, Address } from "@/types/geo";
+import { useRoute } from "ziggy-js";
+import InfoNotice from "./info-notice";
 
 type Props = {
     open: boolean
@@ -19,6 +21,7 @@ const BottomForm: React.FC<Props> = ({ open, setOpen, status, coords, address, u
     const [anonymous, setAnonymous] = useState(true)
     const [name, setName] = useState("")
     const [notes, setNotes] = useState("")
+    const route = useRoute();
 
     const copyAddress = async () => {
         const text = address?.display ?? (coords ? `${coords.lat}, ${coords.lon}` : "—")
@@ -43,6 +46,7 @@ const BottomForm: React.FC<Props> = ({ open, setOpen, status, coords, address, u
                         <h3 className="text-center text-[15px] font-semibold text-slate-800">Tolong lengkapi informasi dibawah ini</h3>
 
                         <div className="mt-4 space-y-4">
+                            <InfoNotice />
                             <LocationCard
                                 status={status}
                                 coords={coords}
@@ -90,14 +94,7 @@ const BottomForm: React.FC<Props> = ({ open, setOpen, status, coords, address, u
                             type="button"
                             className="w-full rounded-2xl bg-sky-600 py-3.5 text-white shadow-lg shadow-sky-600/30 active:scale-[0.98]"
                             onClick={() => {
-                                console.log({
-                                    anonymous,
-                                    name: anonymous ? "Anonim" : name || "-",
-                                    notes,
-                                    coords,
-                                    address,
-                                })
-                                alert("Form dikirim (cek console) ✅")
+                                window.location.href = route('scan.process');
                             }}
                         >
                             Periksa Sekarang

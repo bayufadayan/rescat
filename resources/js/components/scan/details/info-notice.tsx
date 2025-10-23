@@ -1,0 +1,51 @@
+import React, { useState } from 'react';
+import { useHoverCapability } from '@/hooks/use-hover-capability';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+
+const TEXT = 'Informasi lokasi bersifat opsional. Anda boleh melewati bagian ini jika tidak ingin memberikannya karena terlalu privat. Informasi lokasi kami gunakan untuk melacak lokasi secara lebih akurat agar dapat memberikan rekomendasi petcare terdekat.';
+
+export default function InfoNotice() {
+    const hoverCapable = useHoverCapability();
+    const [open, setOpen] = useState(false);
+
+    if (hoverCapable) {
+        return (
+            <TooltipProvider delayDuration={150}>
+                <Tooltip>
+                    <div className="bg-neutral-600 flex gap-3 w-full items-center p-3.5 rounded-2xl opacity-75">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 23 23" fill="none">
+                            <path d="M11.375 0C14.3918 0 17.2851 1.19843 19.4183 3.33166C21.5516 5.46489 22.75 8.35816 22.75 11.375C22.75 14.3918 21.5516 17.2851 19.4183 19.4183C17.2851 21.5516 14.3918 22.75 11.375 22.75C8.35816 22.75 5.46489 21.5516 3.33166 19.4183C1.19843 17.2851 0 14.3918 0 11.375C0 8.35816 1.19843 5.46489 3.33166 3.33166C5.46489 1.19843 8.35816 0 11.375 0ZM11.375 4.875C11.1687 4.87482 10.9646 4.91766 10.7758 5.00081C10.587 5.08395 10.4176 5.20557 10.2784 5.35788C10.1393 5.51019 10.0334 5.68986 9.96758 5.88539C9.90178 6.08093 9.87749 6.28804 9.89625 6.4935L10.4894 13.0033C10.5124 13.2221 10.6156 13.4247 10.7791 13.572C10.9427 13.7192 11.1549 13.8007 11.375 13.8007C11.5951 13.8007 11.8073 13.7192 11.9709 13.572C12.1344 13.4247 12.2376 13.2221 12.2606 13.0033L12.8521 6.4935C12.8709 6.28818 12.8466 6.0812 12.7809 5.88578C12.7152 5.69035 12.6095 5.51077 12.4705 5.35848C12.3315 5.20619 12.1623 5.08455 11.9737 5.0013C11.7851 4.91806 11.5812 4.87504 11.375 4.875ZM11.375 17.875C11.7198 17.875 12.0504 17.738 12.2942 17.4942C12.538 17.2504 12.675 16.9198 12.675 16.575C12.675 16.2302 12.538 15.8996 12.2942 15.6558C12.0504 15.412 11.7198 15.275 11.375 15.275C11.0302 15.275 10.6996 15.412 10.4558 15.6558C10.212 15.8996 10.075 16.2302 10.075 16.575C10.075 16.9198 10.212 17.2504 10.4558 17.4942C10.6996 17.738 11.0302 17.875 11.375 17.875Z" fill="white" />
+                        </svg>
+                        <TooltipTrigger asChild>
+                            <button className="text-left font-medium text-sm text-white/95 line-clamp-2 w-full">
+                                {TEXT}
+                            </button>
+                        </TooltipTrigger>
+                    </div>
+                    <TooltipContent side="bottom" align="center" className="max-w-sm bg-white text-neutral-800 px-3 py-2 rounded-lg shadow-lg text-sm">
+                        {TEXT}
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
+        );
+    }
+
+    return (
+        <Popover open={open} onOpenChange={setOpen}>
+            <div className="bg-neutral-600 flex gap-3 w-full items-center p-3.5 rounded-2xl opacity-75">
+                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 23 23" fill="none">
+                    <path d="M11.375 0C14.3918 0 17.2851 1.19843 19.4183 3.33166C21.5516 5.46489 22.75 8.35816 22.75 11.375C22.75 14.3918 21.5516 17.2851 19.4183 19.4183C17.2851 21.5516 14.3918 22.75 11.375 22.75C8.35816 22.75 5.46489 21.5516 3.33166 19.4183C1.19843 17.2851 0 14.3918 0 11.375C0 8.35816 1.19843 5.46489 3.33166 3.33166C5.46489 1.19843 8.35816 0 11.375 0ZM11.375 4.875C11.1687 4.87482 10.9646 4.91766 10.7758 5.00081C10.587 5.08395 10.4176 5.20557 10.2784 5.35788C10.1393 5.51019 10.0334 5.68986 9.96758 5.88539C9.90178 6.08093 9.87749 6.28804 9.89625 6.4935L10.4894 13.0033C10.5124 13.2221 10.6156 13.4247 10.7791 13.572C10.9427 13.7192 11.1549 13.8007 11.375 13.8007C11.5951 13.8007 11.8073 13.7192 11.9709 13.572C12.1344 13.4247 12.2376 13.2221 12.2606 13.0033L12.8521 6.4935C12.8709 6.28818 12.8466 6.0812 12.7809 5.88578C12.7152 5.69035 12.6095 5.51077 12.4705 5.35848C12.3315 5.20619 12.1623 5.08455 11.9737 5.0013C11.7851 4.91806 11.5812 4.87504 11.375 4.875ZM11.375 17.875C11.7198 17.875 12.0504 17.738 12.2942 17.4942C12.538 17.2504 12.675 16.9198 12.675 16.575C12.675 16.2302 12.538 15.8996 12.2942 15.6558C12.0504 15.412 11.7198 15.275 11.375 15.275C11.0302 15.275 10.6996 15.412 10.4558 15.6558C10.212 15.8996 10.075 16.2302 10.075 16.575C10.075 16.9198 10.212 17.2504 10.4558 17.4942C10.6996 17.738 11.0302 17.875 11.375 17.875Z" fill="white" />
+                </svg>
+                <PopoverTrigger asChild>
+                    <button onClick={() => setOpen((v) => !v)} className="text-left font-medium text-sm text-white/95 line-clamp-2 w-full active:opacity-90">
+                        {TEXT}
+                    </button>
+                </PopoverTrigger>
+            </div>
+            <PopoverContent side="bottom" align="center" className="max-w-sm bg-white text-neutral-800 px-3 py-2 rounded-lg shadow-lg text-sm">
+                {TEXT}
+            </PopoverContent>
+        </Popover>
+    );
+}

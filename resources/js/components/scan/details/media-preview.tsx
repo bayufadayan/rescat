@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState } from "react";
 import { ChevronUp } from "lucide-react";
-import { Check } from 'lucide-react';
+import { Check, X } from 'lucide-react';
 
 export default function MediaPreview() {
     const [hero, setHero] = useState<string | null>(null);
@@ -16,8 +17,9 @@ export default function MediaPreview() {
 
     return (
         <div className="w-full md:max-w-2xl max-w-full pt-0 relative">
-            <div className="h-20 w-20 absolute left-1/2 -translate-x-1/2 -translate-y-1/2 bg-green-500 rounded-full z-20 shrink-0 grow-0 border-6 border-white flex items-center justify-center">
-                <Check className="text-white flex size-12" strokeWidth={3} />
+            <div className="h-20 w-20 absolute left-1/2 -translate-x-1/2 -translate-y-1/2 bg-red-500 rounded-full z-20 shrink-0 grow-0 border-6 border-white flex items-center justify-center">
+                {/* <Check className="text-white flex size-12" strokeWidth={3} /> */}
+                <X className="text-white flex size-12" strokeWidth={3} />
             </div>
             <div className="w-fit h-auto bg-white border-6 border-white rounded-3xl overflow-hidden p-1 mx-auto max-w-[350px] md:max-w-lg">
                 <div className="relative overflow-hidden rounded-2xl bg-green-500">

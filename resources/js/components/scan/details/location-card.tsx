@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { MapPin, Clock, Copy, Trash2 } from "lucide-react";
+import { MapPin, Clock, Copy, Trash2, RefreshCcw } from "lucide-react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import type { GeoStatus, Coords, Address } from "@/types/geo";
 
@@ -13,7 +13,6 @@ type Props = {
     onClear: () => void;
 };
 
-// Komponen kecil untuk auto-fly ke koordinat ketika berubah
 function FlyTo({ coords }: { coords: Coords | null }) {
     const map = useMap();
     useEffect(() => {
@@ -35,13 +34,10 @@ const LocationCard: React.FC<Props> = ({
     const timeStr = updatedAt
         ? updatedAt.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })
         : "--:--";
-
-    // Fallback center kalau belum ada coords (Monas, Jakarta)
     const fallbackCenter: [number, number] = [-6.1754, 106.8272];
 
     return (
         <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-            {/* Wadah tinggi tetap, biar peta tidak collapse */}
             <div className="h-40 w-full">
                 <MapContainer
                     center={coords ? [coords.lat, coords.lon] : fallbackCenter}
@@ -49,13 +45,10 @@ const LocationCard: React.FC<Props> = ({
                     scrollWheelZoom={false}
                     style={{ height: "100%", width: "100%" }}
                 >
-                    {/* Tile gratis dari OpenStreetMap – wajib sertakan attribution */}
                     <TileLayer
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                         attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
                     />
-
-                    {/* Marker + auto-fly ketika koordinat ada/berubah */}
                     {coords && (
                         <>
                             <Marker position={[coords.lat, coords.lon]}>
@@ -109,9 +102,17 @@ const LocationCard: React.FC<Props> = ({
                         onClick={onRefresh}
                         className="rounded-full bg-sky-600 px-4 py-1.5 text-sm font-semibold text-white shadow active:scale-95"
                     >
-                        Bogor
+                        {address?.city || "--"}
                     </button>
                     <div className="flex items-center gap-2">
+                        <button
+                            type="button"
+                            onClick={onRefresh}
+                            className="rounded-lg border border-slate-200 bg-white p-2 text-slate-600 hover:bg-slate-50"
+                            title="Refresh address"
+                        >
+                            <RefreshCcw className="h-4 w-4" />
+                        </button>
                         <button
                             type="button"
                             onClick={onCopy}
