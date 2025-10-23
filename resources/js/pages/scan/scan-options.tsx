@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { Button } from '@/components/ui/button';
 import { useRoute } from 'ziggy-js';
@@ -7,22 +7,11 @@ import { OptionItem, OptionValue } from '@/components/scan/options/option-card';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import ScanTypeModal, { ScanType } from '@/components/scan/options/scan-type-modal';
 import BottomSheet from '@/components/scan/options/bottom-sheet';
+import RestrictionModal from '@/components/scan/options/restriction-modal';
 
 const OPTIONS: OptionItem[] = [
-  {
-    value: 'face',
-    title: 'Face only check-up',
-    desc: 'Scan cepat untuk area wajah. Ideal untuk cek harian & ringkas.',
-    icon: '/images/icon/face-only-icon.svg',
-    selectedIcon: '/images/icon/face-only-icon-selected.svg',
-  },
-  {
-    value: 'full',
-    title: 'Full body check-up',
-    desc: 'Pemeriksaan menyeluruh dari ujung kepala hingga kaki.',
-    icon: '/images/icon/full-body-icon.svg',
-    selectedIcon: '/images/icon/full-body-icon-selected.svg',
-  },
+  { value: 'face', title: 'Face only check-up', desc: 'Scan cepat untuk area wajah. Ideal untuk cek harian & ringkas.', icon: '/images/icon/face-only-icon.svg', selectedIcon: '/images/icon/face-only-icon-selected.svg' },
+  { value: 'full', title: 'Full body check-up', desc: 'Pemeriksaan menyeluruh dari ujung kepala hingga kaki.', icon: '/images/icon/full-body-icon.svg', selectedIcon: '/images/icon/full-body-icon-selected.svg' },
 ];
 
 export default function ScanOptions() {
@@ -33,37 +22,71 @@ export default function ScanOptions() {
   const [draftScanType, setDraftScanType] = useState<ScanType | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [restrictOpen, setRestrictOpen] = useState(false);
+  const [restrictReason, setRestrictReason] = useState<'full' | 'face-detail' | null>(null);
 
   useEffect(() => {
     setDraftSelected(committedSelected);
     setDraftScanType(committedScanType);
   }, [committedSelected, committedScanType]);
 
+  const isRestricted = useMemo(() => {
+    if (draftSelected === 'full') return true;
+    if (draftSelected === 'face' && draftScanType === 'detail') return true;
+    return false;
+  }, [draftSelected, draftScanType]);
+
+  const selectedTypeLabel = draftScanType === 'quick' ? 'Quick scan' : draftScanType === 'detail' ? 'Detail scan' : null;
+
   const handleSelectOption = (v: OptionValue) => {
+    if (v === 'full') {
+      setRestrictReason('full');
+      setRestrictOpen(true);
+      setDraftSelected(null);
+      setDraftScanType(null);
+      setModalOpen(false);
+      return;
+    }
     setDraftSelected(v);
     setDraftScanType(null);
     setModalOpen(true);
   };
 
   const handleConfirmType = (t: ScanType) => {
+    if (draftSelected === 'face' && t === 'detail') {
+      setRestrictReason('face-detail');
+      setRestrictOpen(true);
+      setModalOpen(false);
+      return;
+    }
     setDraftScanType(t);
     setModalOpen(false);
   };
 
   const handleNext = () => {
     if (!draftSelected || !draftScanType) return;
+    if (isRestricted) {
+      setRestrictReason(draftSelected === 'full' ? 'full' : 'face-detail');
+      setRestrictOpen(true);
+      return;
+    }
     setSheetOpen(true);
   };
 
-  const selectedTypeLabel =
-    draftScanType === 'quick' ? 'Quick scan' : draftScanType === 'detail' ? 'Detail scan' : null;
-
   const handleStartScan = () => {
     if (!draftSelected || !draftScanType) return;
-
+    if (draftSelected === 'full') {
+      setRestrictReason('full');
+      setRestrictOpen(true);
+      return;
+    }
+    if (draftSelected === 'face' && draftScanType === 'detail') {
+      setRestrictReason('face-detail');
+      setRestrictOpen(true);
+      return;
+    }
     setCommittedSelected(draftSelected);
     setCommittedScanType(draftScanType);
-
     const url = route('scan.capture');
     window.location.href = url;
   };
@@ -72,12 +95,8 @@ export default function ScanOptions() {
     <AppLayout>
       <main className="min-h-dvh h-dvh flex flex-col items-center justify-between bg-[linear-gradient(to_bottom,_#0091F3,_#21A6FF)] relative">
         <div className="absolute w-full h-full bg-[url('/images/background/pink-purple.png')] bg-cover bg-center bg-no-repeat mix-blend-soft-light" />
-
         <div className="px-4 flex flex-col pt-22 items-center gap-4 w-full">
-          <h1 className="font-semibold text-2xl text-white w-full text-center">
-            Choose check-up type do you want to use
-          </h1>
-
+          <h1 className="font-semibold text-2xl text-white w-full text-center">Choose check-up type do you want to use</h1>
           <OptionGroup
             options={OPTIONS}
             value={draftSelected}
@@ -86,22 +105,14 @@ export default function ScanOptions() {
             selectedTypeLabel={selectedTypeLabel}
           />
         </div>
-
-        {/* button */}
         <div className="flex flex-col w-full gap-2 px-4 pb-8 items-center z-10">
           <Button
             type="button"
-            className={[
-              'w-full py-5 transition-all max-w-lg',
-              (draftSelected && draftScanType)
-                ? 'bg-white text-black active:scale-95 duration-300 ease-in-out cursor-pointer'
-                : 'bg-white/60 text-black/60 cursor-not-allowed backdrop-blur-2xl',
-            ].join(' ')}
+            className={['w-full py-5 transition-all max-w-lg', draftSelected && draftScanType ? 'bg-white text-black active:scale-95 duration-300 ease-in-out cursor-pointer' : 'bg-white/60 text-black/60 cursor-not-allowed backdrop-blur-2xl'].join(' ')}
             onClick={handleNext}
           >
             Oke, lanjut
           </Button>
-
           <Button
             type="button"
             onClick={() => (window.location.href = route('home'))}
@@ -123,32 +134,35 @@ export default function ScanOptions() {
         <div className="flex h-2 w-[100px] bg-gray-400/80 rounded-full mx-auto mb-3" />
         <h3 className="text-center text-lg font-semibold">Instruksi</h3>
         <p className="sr-only">Ikuti langkah di bawah ini sebelum memulai pemindaian.</p>
-
         <div className="mt-3">
           <ol className="list-decimal pl-5 space-y-2 text-sm text-neutral-700">
             <li>Pastikan pencahayaan cukup dan area terlihat jelas.</li>
-            <li>Posisikan perangkat pada jarak yang nyaman & stabil.</li>
+            <li>Posisikan perangkat pada jarak yang nyaman dan stabil.</li>
             <li>Hindari gerakan cepat saat pemindaian berlangsung.</li>
             <li>Bersihkan lensa kamera untuk hasil tajam.</li>
             <li>Lepas aksesori yang menutupi area pemindaian.</li>
             <li>Ikuti indikator di layar untuk penyelarasan.</li>
             <li>Tetap tenang dan bernapas normal.</li>
-            <li>Pastikan baterai cukup & internet stabil.</li>
+            <li>Pastikan baterai cukup dan internet stabil.</li>
             <li>Ulangi pemindaian bila diminta sistem.</li>
             <li>Simpan hasil jika perlu untuk perbandingan.</li>
           </ol>
         </div>
-
         <div className="mt-5">
-          <Button
-            type="button"
-            onClick={handleStartScan}
-            className="w-full py-5 font-semibold bg-[#0091F3] hover:bg-[#0a83da] text-white"
-          >
+          <Button type="button" onClick={handleStartScan} className="w-full py-5 font-semibold bg-[#0091F3] hover:bg-[#0a83da] text-white">
             Start Scan
           </Button>
         </div>
       </BottomSheet>
+
+      <RestrictionModal
+        open={restrictOpen}
+        onClose={() => setRestrictOpen(false)}
+        title={restrictReason === 'full' ? 'Full Body belum tersedia' : 'Detail Scan untuk Face belum tersedia'}
+        description={restrictReason === 'full' ? 'Fitur Full Body masih dalam pengembangan. Silakan gunakan Face only terlebih dahulu.' : 'Mode Detail untuk Face masih dalam pengembangan. Silakan pilih Quick scan.'}
+        primaryText="Mengerti"
+        onPrimary={() => setRestrictOpen(false)}
+      />
     </AppLayout>
   );
 }
