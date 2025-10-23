@@ -15,8 +15,13 @@ function mapTypeToMode(v: string | null): ScanMode {
     return v === 'detail' ? 'detail' : 'quick';
 }
 
-export default function Header() {
-    const [isFlashlightOn, setIsFlashlightOn] = useState(false);
+type Props = {
+    showFlashlight: boolean;
+    isFlashlightOn: boolean;
+    onToggleFlashlight: () => void;
+};
+
+export default function Header({ showFlashlight, isFlashlightOn, onToggleFlashlight }: Props) {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [scan, setScan] = useState<{ target: ScanTarget; mode: ScanMode }>({ target: 'faceonly', mode: 'quick' });
     const [restrictOpen, setRestrictOpen] = useState(false);
@@ -36,7 +41,6 @@ export default function Header() {
         }
     }, []);
 
-    const toggleFlashlight = () => setIsFlashlightOn(v => !v);
     const toggleDropdown = (e?: React.MouseEvent) => {
         if (e) e.stopPropagation();
         setIsDropdownOpen(v => !v);
@@ -64,9 +68,13 @@ export default function Header() {
     return (
         <>
             <div className="text-white pointer-events-auto w-full flex items-center justify-between px-4 py-1 mt-2 max-w-md">
-                <button className="p-2 rounded-full" onClick={toggleFlashlight}>
-                    {isFlashlightOn ? <ZapOff size={28} /> : <Zap size={28} />}
-                </button>
+                {showFlashlight ? (
+                    <button className="p-2 rounded-full" onClick={onToggleFlashlight}>
+                        {isFlashlightOn ? <ZapOff size={28} /> : <Zap size={28} />}
+                    </button>
+                ) : (
+                    <div className="w-10" />
+                )}
 
                 <div
                     ref={dropdownRef}
