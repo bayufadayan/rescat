@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap');
 @import 'tailwindcss';
 @plugin 'tailwindcss-animate';
 
@@ -61,7 +62,7 @@
 }
 
 :root {
-    --main-linear-background: linear-gradient(to bottom, #0091F3, #21A6FF);
+    --main-linear-background: linear-gradient(to bottom, #0091f3, #21a6ff);
     --background: oklch(1 0 0);
     --foreground: oklch(0.145 0 0);
     --card: oklch(1 0 0);
@@ -133,10 +134,13 @@
 } */
 
 @layer base {
-    @import url('https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap');
-
     * {
         @apply border-border;
+        
+        font-family:
+            'Urbanist', 'Instrument Sans', ui-sans-serif, system-ui, sans-serif,
+            'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+            'Noto Color Emoji';
     }
 
     body {
@@ -161,5 +165,4 @@
     .custom-scroll::-webkit-scrollbar-thumb:hover {
         background-color: rgba(0, 0, 0, 0.6);
     }
-
 }
