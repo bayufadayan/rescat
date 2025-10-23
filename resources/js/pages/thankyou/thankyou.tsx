@@ -36,7 +36,7 @@ export default function ThankYouPage() {
                 </div>
 
                 <div className="flex w-full max-w-[880px] flex-col gap-4 -mt-4">
-                    <h1 className="font-extrabold text-white text-6xl md:text-6xl leading-tight">
+                    <h1 className="font-extrabold text-white text-[55px] md:text-6xl leading-tight">
                         Makasihh yahh,{' '}
                         <span className="relative inline-block -rotate-5">
                             <span
@@ -86,7 +86,7 @@ export default function ThankYouPage() {
                         className="w-full bg-white text-black py-5 rounded-xl"
                         tabIndex={4}
                         data-test="login-button"
-                        onClick={() => (window.location.href = route('feedback'))}
+                        onClick={() => window.open("https://rescat.life/", '_blank', 'noopener,noreferrer')}
                     >
                         Feedback (&lt; 5 menit)
                     </Button>
