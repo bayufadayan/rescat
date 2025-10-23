@@ -61,7 +61,7 @@ export default function ScanOptions() {
 
   return (
     <AppLayout>
-      <main className="min-h-svh max-h-lvh h-screen flex flex-col items-center justify-between bg-[linear-gradient(to_bottom,_#0091F3,_#21A6FF)] relative">
+      <main className="min-h-dvh h-dvh flex flex-col items-center justify-between bg-[linear-gradient(to_bottom,_#0091F3,_#21A6FF)] relative">
         <div className="absolute w-full h-full bg-[url('/images/background/pink-purple.png')] bg-cover bg-center bg-no-repeat mix-blend-soft-light" />
 
         {/* content */}

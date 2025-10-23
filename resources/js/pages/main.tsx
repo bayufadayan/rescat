@@ -13,9 +13,7 @@ export default function MainPage() {
             <HistoryPreview />
             <Navigation />  
 
-            <div className="flex h-24 w-full relative bg-transparent">
-
-            </div>
+            <div className="flex h-24 w-full relative bg-transparent" />
         </AppLayout>
     )
 }

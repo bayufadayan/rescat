@@ -55,7 +55,7 @@ export default function ScanCapture() {
     const flipCamera = (): void => setFront((p) => !p)
 
     return (
-        <div className="relative min-h-screen w-full text-white bg-neutral-800">
+        <div className="relative min-h-dvh h-dvh w-full text-white bg-neutral-800">
             <div className='w-full h-full fixed z-0'>
                 <WatermarkBackground />
             </div>

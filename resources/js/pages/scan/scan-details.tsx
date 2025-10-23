@@ -48,8 +48,8 @@ export default function ScanDetails() {
     }, [])
 
     return (
-        <div className="min-h-screen w-full bg-[#0da0ff] text-slate-900 flex justify-center">
-            <div className="w-full justify-between">
+        <div className="min-h-dvh w-full bg-[#0da0ff] text-slate-900 flex justify-center">
+            <div className="w-full justify-between min-h-dvh">
                 <div className="flex w-full h-full flex-col justify-center items-center lg:flex-row lg:items-start lg:justify-center px-4 pt-16 lg:px-0 lg:pt-0">
                     <div className="flex-1 flex items-center justify-center h-full">
                         <MediaPreview />

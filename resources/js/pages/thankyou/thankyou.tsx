@@ -8,7 +8,7 @@ export default function ThankYouPage() {
     const route = useRoute()
 
     return (
-        <div className="min-h-svh max-h-lvh h-screen flex items-center justify-center bg-[linear-gradient(to_bottom,_#0091F3,_#21A6FF)] relative overflow-hidden">
+        <div className="min-h-dvh h-dvh flex items-center justify-center bg-[linear-gradient(to_bottom,_#0091F3,_#21A6FF)] relative overflow-hidden">
             <div className="absolute hidden md:flex w-full h-full bg-[url('/images/background/pink-purple.png')] bg-cover bg-center bg-no-repeat mix-blend-soft-light" />
             <img
                 src="/images/background/onboard-pattern.png"

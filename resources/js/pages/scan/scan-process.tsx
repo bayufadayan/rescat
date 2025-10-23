@@ -5,7 +5,7 @@ import { useRoute } from 'ziggy-js';
 export default function ScanProcess() {
     const route = useRoute();
     return (
-        <main className='min-h-svh max-h-lvh h-screen flex items-center justify-center bg-[linear-gradient(to_bottom,_#0091F3,_#21A6FF)] relative'>
+        <main className='min-h-dvh h-dvh flex items-center justify-center bg-[linear-gradient(to_bottom,_#0091F3,_#21A6FF)] relative'>
             <div className="absolute hidden md:flex w-full h-full bg-[url('/images/background/pink-purple.png')] bg-cover bg-center bg-no-repeat mix-blend-soft-light" />
             <img src="/images/background/onboard-pattern.png"
                 alt="onboarding-top-pattern"
@@ -15,8 +15,8 @@ export default function ScanProcess() {
                 alt="onboarding-top-pattern"
                 className="absolute flex md:hidden bottom-0 left-0 h-[30%] w-auto md:w-full md:h-[20%] object-cover mix-blend-screen opacity-50 object-left scale-x-[-1] scale-y-[-1]"
             />
-            <div className="h-full w-full flex flex-col justify-between py-4 px-8 z-10">
-                <div className='flex justify-between items-center w-full  text-white'>
+            <div className="min-h-dvh w-full flex flex-col justify-between py-4 px-8 z-10">
+                <div className='flex justify-between items-center w-full mt-3 text-white'>
                     <button onClick={() => (window.location.href = route('home'))} className='cursor-pointer'><Home /></button>
                     <h4 className='font-bold text-xl text-center flex-1'>Scanning...</h4>
                     <button className='invisible'><Home /></button>
