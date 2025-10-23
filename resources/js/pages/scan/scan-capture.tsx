@@ -7,8 +7,10 @@ import CameraStage from '@/components/scan/capture/camera-stage';
 import { computeCropFromOverlay } from '@/lib/helper/compute-crop-from-overlay';
 import WatermarkBackground from '@/components/scan/capture/watermark-bg';
 import { useTorch } from '@/hooks/use-torch';
+import { useRoute } from 'ziggy-js';
 
 export default function ScanCapture() {
+    const route = useRoute();
     const webcamRef = useRef<Webcam | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const frameRef = useRef<HTMLDivElement>(null);
@@ -54,7 +56,13 @@ export default function ScanCapture() {
 
         const dataUrl = canvas.toDataURL('image/png');
         setLastShot(dataUrl);
-    }, []);
+        try {
+            sessionStorage.setItem('scan:pendingImage', dataUrl);
+        } catch {
+            // no-op
+        }
+        window.location.href = route('scan.details');
+    }, [route]);
 
     const flipCamera = (): void => setFront((p) => !p);
 

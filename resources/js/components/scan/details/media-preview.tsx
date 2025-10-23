@@ -1,13 +1,18 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import { ChevronUp } from "lucide-react";
 import { Check } from 'lucide-react';
 
 export default function MediaPreview() {
-    const hero = "https://picsum.photos/seed/cat-hero/800/1000.jpg"
-    const thumbs = useMemo(
-        () => Array.from({ length: 7 }).map((_, i) => `https://picsum.photos/seed/cat-${i + 1}/300/300.jpg`),
-        []
-    )
+    const [hero, setHero] = useState<string | null>(null);
+
+    useEffect(() => {
+        try {
+            const v = sessionStorage.getItem('scan:pendingImage');
+            if (v) setHero(v);
+        } catch {
+            // ignore
+        }
+    }, []);
 
     return (
         <div className="w-full md:max-w-2xl max-w-full pt-0 relative">
@@ -16,29 +21,33 @@ export default function MediaPreview() {
             </div>
             <div className="w-fit h-auto bg-white border-6 border-white rounded-3xl overflow-hidden p-1 mx-auto max-w-[350px] md:max-w-lg">
                 <div className="relative overflow-hidden rounded-2xl bg-green-500">
-                    <img src={hero} alt="Preview" className="h-[360px] w-full object-cover" />
-
+                    {hero ? (
+                        <img src={hero} alt="Preview" className="h-[360px] w-full object-cover" />
+                    ) : (
+                        <div className="h-[360px] w-full grid place-items-center text-white/80">Tidak ada gambar</div>
+                    )}
                     <button
                         type="button"
                         className="absolute bottom-3 right-3 grid h-10 w-10 place-items-center rounded-lg bg-black/50 shadow-md"
                         title="Ulangi"
+                        onClick={() => {
+                            try {
+                                sessionStorage.removeItem('scan:pendingImage');
+                            } catch {
+                                // ignore
+                            }
+                            window.history.back();
+                        }}
                     >
                         <figure>
                             <img src="/images/icon/camera-rollback-icon.svg" alt="camera-rollback-icon.svg" />
                         </figure>
                     </button>
                 </div>
-
-                <div className="mt-3 flex items-center gap-3 overflow-x-auto px-1 custom-scroll pb-2">
-                    {thumbs.map((t, i) => (
-                        <img key={i} src={t} alt={`thumb-${i}`} className="h-16 w-16 shrink-0 rounded-xl object-cover ring-2 ring-white" />
-                    ))}
-                </div>
             </div>
-
             <div className="mt-2 flex w-full justify-center">
                 <div className="grid place-items-center rounded-full bg-white shadow-md px-2 py-0">
-                    <ChevronUp className="h-5 w-5 text-slate-600" strokeWidth={2.5}/>
+                    <ChevronUp className="h-5 w-5 text-slate-600" strokeWidth={2.5} />
                 </div>
             </div>
         </div>

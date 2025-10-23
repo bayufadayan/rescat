@@ -20,6 +20,10 @@ class ScanController extends Controller
     {
         return Inertia::render('scan/scan-capture');
     }
+    public function crop()
+    {
+        return Inertia::render('scan/scan-crop');
+    }
     public function details()
     {
         return Inertia::render('scan/scan-details');
