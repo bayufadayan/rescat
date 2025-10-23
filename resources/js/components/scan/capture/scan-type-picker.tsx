@@ -1,5 +1,6 @@
 import React from 'react';
 import { Check } from 'lucide-react';
+import SelectionSummary from './selection-summary';
 
 type ScanTarget = 'fullbody' | 'faceonly';
 type ScanMode = 'quick' | 'detail';
@@ -99,17 +100,7 @@ export default function ScantypePicker({ value, onChange, className = '' }: Prop
             </div>
 
             <div className="h-[1px] w-full rounded-full bg-white mt-5 mb-3 opacity-10"></div>
-            <h5 className="flex justify-between mt-2 text-sm font-medium text-gray-300">
-                <span>You Choose</span>
-                <span>
-                    <span className="ml-2 px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 font-semibold">
-                        {target}
-                    </span>
-                    <span className="ml-2 px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 font-semibold">
-                        {mode}
-                    </span>
-                </span>
-            </h5>
+            <SelectionSummary target={target} mode={mode} />
         </div>
     );
 }
