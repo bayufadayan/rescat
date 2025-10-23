@@ -12,7 +12,7 @@ export default function AuthCustomLayout({
     description,
 }: AuthLayoutProps ) {
     return (
-        <main className='min-h-svh max-h-lvh h-screen flex flex-col items-center bg-[linear-gradient(to_bottom,_#0091F3,_#21A6FF)] relative px-4'>
+        <main className='min-h-dvh h-dvh flex flex-col items-center bg-[linear-gradient(to_bottom,_#0091F3,_#21A6FF)] relative px-4'>
             <div className="absolute w-full h-full bg-[url('/images/background/pink-purple.png')] bg-cover bg-center bg-no-repeat mix-blend-soft-light opacity-60" />
 
             <figure className='h-12 mt-10 mb-6'>

@@ -28,7 +28,7 @@ export default function Sidebar() {
             />
 
             <aside
-                className={`fixed top-0 left-0 z-50 flex h-screen w-72 transform flex-col justify-between bg-white pb-8 shadow-lg transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
+                className={`fixed top-0 left-0 z-50 flex min-h-dvh h-dvh w-72 transform flex-col justify-between bg-white pb-8 shadow-lg transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
             >
                 <div className="flex w-full flex-col gap-2">
                     <header className="relative flex w-full flex-col gap-4 bg-[linear-gradient(to_bottom,_#0091F3,_#21A6FF)] px-3 pt-8 pb-5">
