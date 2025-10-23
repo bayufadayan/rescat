@@ -9,6 +9,7 @@ import BackToHome from '@/components/scan/results/main/back-to-home-button';
 import ThumbTabs from '@/components/scan/results/detail/thumb-tabs';
 import MediaInspectionCard from '@/components/scan/results/detail/media-inspection-card';
 import AnalysisTile from '@/components/scan/results/detail/analysis-tile';
+import ChartCard from '@/components/scan/results/history/chart-card';
 
 export default function ScanResults() {
     return (
@@ -38,6 +39,13 @@ export default function ScanResults() {
                         <MediaInspectionCard />
                         <AnalysisTile />
                     </div>
+                </div>
+
+                <div className='text-center bg-red-500 h-1 w-full '>
+                </div>
+
+                <div className="flex flex-col gap-4 px-4 w-full">
+                    <ChartCard />
                 </div>
             </div>
         </AppLayout>
