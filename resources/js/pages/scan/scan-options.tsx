@@ -8,6 +8,7 @@ import { useLocalStorage } from '@/hooks/use-local-storage';
 import ScanTypeModal, { ScanType } from '@/components/scan/options/scan-type-modal';
 import BottomSheet from '@/components/scan/options/bottom-sheet';
 import RestrictionModal from '@/components/scan/options/restriction-modal';
+import { getScanPresetLabel, getSteps } from '@/constants/scan-steps';
 
 const OPTIONS: OptionItem[] = [
   { value: 'face', title: 'Face only check-up', desc: 'Scan cepat untuk area wajah. Ideal untuk cek harian & ringkas.', icon: '/images/icon/face-only-icon.svg', selectedIcon: '/images/icon/face-only-icon-selected.svg' },
@@ -91,6 +92,9 @@ export default function ScanOptions() {
     window.location.href = url;
   };
 
+  const presetLabel = useMemo(() => getScanPresetLabel(draftSelected, draftScanType), [draftSelected, draftScanType]);
+  const stepItems = useMemo(() => getSteps(draftSelected, draftScanType), [draftSelected, draftScanType]);
+
   return (
     <AppLayout>
       <main className="min-h-dvh h-dvh flex flex-col items-center justify-between bg-[linear-gradient(to_bottom,_#0091F3,_#21A6FF)] relative">
@@ -133,20 +137,24 @@ export default function ScanOptions() {
       <BottomSheet open={sheetOpen} onClose={() => setSheetOpen(false)}>
         <div className="flex h-2 w-[100px] bg-gray-400/80 rounded-full mx-auto mb-3" />
         <h3 className="text-center text-lg font-semibold">Instruksi</h3>
-        <p className="sr-only">Ikuti langkah di bawah ini sebelum memulai pemindaian.</p>
-        <div className="mt-3">
-          <ol className="list-decimal pl-5 space-y-2 text-sm text-neutral-700">
-            <li>Pastikan pencahayaan cukup dan area terlihat jelas.</li>
-            <li>Posisikan perangkat pada jarak yang nyaman dan stabil.</li>
-            <li>Hindari gerakan cepat saat pemindaian berlangsung.</li>
-            <li>Bersihkan lensa kamera untuk hasil tajam.</li>
-            <li>Lepas aksesori yang menutupi area pemindaian.</li>
-            <li>Ikuti indikator di layar untuk penyelarasan.</li>
-            <li>Tetap tenang dan bernapas normal.</li>
-            <li>Pastikan baterai cukup dan internet stabil.</li>
-            <li>Ulangi pemindaian bila diminta sistem.</li>
-            <li>Simpan hasil jika perlu untuk perbandingan.</li>
-          </ol>
+        <div className="mt-3 flex flex-col gap-3">
+          <label className="text-sm text-neutral-600">Preset</label>
+          <select
+            disabled
+            value="current"
+            className="w-full max-w-lg mx-auto rounded-xl border border-neutral-200 bg-neutral-50 text-neutral-700 px-3 py-2 cursor-not-allowed"
+          >
+            <option value="current">{presetLabel}</option>
+          </select>
+          {stepItems.length === 0 ? (
+            <p className="text-sm text-neutral-500">Langkah akan tampil setelah kamu memilih tipe scan.</p>
+          ) : (
+            <ol className="list-decimal pl-5 space-y-2 text-sm text-neutral-700">
+              {stepItems.map((s, i) => (
+                <li key={i}>{s}</li>
+              ))}
+            </ol>
+          )}
         </div>
         <div className="mt-5">
           <Button type="button" onClick={handleStartScan} className="w-full py-5 font-semibold bg-[#0091F3] hover:bg-[#0a83da] text-white">
