@@ -27,34 +27,43 @@ const OPTIONS: OptionItem[] = [
 
 export default function ScanOptions() {
   const route = useRoute();
-  const [selected, setSelected] = useLocalStorage<OptionValue | null>('scanOption', null);
-  const [scanType, setScanType] = useLocalStorage<ScanType | null>('scanType', null);
+  const [committedSelected, setCommittedSelected] = useLocalStorage<OptionValue | null>('scanOption', null);
+  const [committedScanType, setCommittedScanType] = useLocalStorage<ScanType | null>('scanType', null);
+  const [draftSelected, setDraftSelected] = useState<OptionValue | null>(null);
+  const [draftScanType, setDraftScanType] = useState<ScanType | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
 
+  useEffect(() => {
+    setDraftSelected(committedSelected);
+    setDraftScanType(committedScanType);
+  }, [committedSelected, committedScanType]);
+
   const handleSelectOption = (v: OptionValue) => {
-    setSelected(v);
+    setDraftSelected(v);
+    setDraftScanType(null);
     setModalOpen(true);
   };
 
   const handleConfirmType = (t: ScanType) => {
-    setScanType(t);
+    setDraftScanType(t);
     setModalOpen(false);
   };
 
   const handleNext = () => {
-    if (!selected || !scanType) return;
+    if (!draftSelected || !draftScanType) return;
     setSheetOpen(true);
   };
 
-  useEffect(() => {
-    setScanType(null);
-  }, [selected, setScanType]);
-
   const selectedTypeLabel =
-    scanType === 'quick' ? 'Quick scan' : scanType === 'detail' ? 'Detail scan' : null;
+    draftScanType === 'quick' ? 'Quick scan' : draftScanType === 'detail' ? 'Detail scan' : null;
 
   const handleStartScan = () => {
+    if (!draftSelected || !draftScanType) return;
+
+    setCommittedSelected(draftSelected);
+    setCommittedScanType(draftScanType);
+
     const url = route('scan.capture');
     window.location.href = url;
   };
@@ -64,7 +73,6 @@ export default function ScanOptions() {
       <main className="min-h-dvh h-dvh flex flex-col items-center justify-between bg-[linear-gradient(to_bottom,_#0091F3,_#21A6FF)] relative">
         <div className="absolute w-full h-full bg-[url('/images/background/pink-purple.png')] bg-cover bg-center bg-no-repeat mix-blend-soft-light" />
 
-        {/* content */}
         <div className="px-4 flex flex-col pt-22 items-center gap-4 w-full">
           <h1 className="font-semibold text-2xl text-white w-full text-center">
             Choose check-up type do you want to use
@@ -72,7 +80,7 @@ export default function ScanOptions() {
 
           <OptionGroup
             options={OPTIONS}
-            value={selected}
+            value={draftSelected}
             onChange={handleSelectOption}
             ariaLabel="Check-up type selection"
             selectedTypeLabel={selectedTypeLabel}
@@ -85,7 +93,9 @@ export default function ScanOptions() {
             type="button"
             className={[
               'w-full py-5 transition-all max-w-lg',
-              (selected && scanType) ? 'bg-white text-black active:scale-95 duration-300 ease-in-out cursor-pointer' : 'bg-white/60 text-black/60 cursor-not-allowed backdrop-blur-2xl',
+              (draftSelected && draftScanType)
+                ? 'bg-white text-black active:scale-95 duration-300 ease-in-out cursor-pointer'
+                : 'bg-white/60 text-black/60 cursor-not-allowed backdrop-blur-2xl',
             ].join(' ')}
             onClick={handleNext}
           >
@@ -106,7 +116,7 @@ export default function ScanOptions() {
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         onConfirm={handleConfirmType}
-        defaultValue={scanType}
+        defaultValue={draftScanType}
       />
 
       <BottomSheet open={sheetOpen} onClose={() => setSheetOpen(false)}>
@@ -129,12 +139,10 @@ export default function ScanOptions() {
           </ol>
         </div>
 
-        {/* Tombol Start Scan */}
         <div className="mt-5">
           <Button
             type="button"
             onClick={handleStartScan}
-            // onClick={() => (window.location.href = route('home'))}
             className="w-full py-5 font-semibold bg-[#0091F3] hover:bg-[#0a83da] text-white"
           >
             Start Scan
