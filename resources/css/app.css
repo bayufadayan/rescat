@@ -136,7 +136,7 @@
 @layer base {
     * {
         @apply border-border;
-        
+
         font-family:
             'Urbanist', 'Instrument Sans', ui-sans-serif, system-ui, sans-serif,
             'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
@@ -164,5 +164,11 @@
 
     .custom-scroll::-webkit-scrollbar-thumb:hover {
         background-color: rgba(0, 0, 0, 0.6);
+    }
+
+    @supports (overscroll-behavior: contain) {
+        .overscroll-contain {
+            overscroll-behavior: contain;
+        }
     }
 }
