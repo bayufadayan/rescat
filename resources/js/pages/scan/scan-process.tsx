@@ -1,9 +1,13 @@
-import React from 'react';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import React, { useState } from 'react';
 import { Home, Info } from 'lucide-react';
 import { useRoute } from 'ziggy-js';
+import LottiePlayer from '@/components/lottie/LottiePlayer';
 
 export default function ScanProcess() {
     const route = useRoute();
+    const [isImageLoaded, setIsImageLoaded] = useState(false);
+
     return (
         <main className='min-h-dvh h-dvh flex items-center justify-center bg-[linear-gradient(to_bottom,_#0091F3,_#21A6FF)] relative'>
             <div className="absolute hidden md:flex w-full h-full bg-[url('/images/background/pink-purple.png')] bg-cover bg-center bg-no-repeat mix-blend-soft-light" />
@@ -32,71 +36,79 @@ export default function ScanProcess() {
                                 <circle cx="60" cy="60" r="54" fill="none" stroke="white" strokeLinecap="round" strokeWidth="8" strokeDasharray="80 400" />
                             </svg>
 
-                            <img
-                                src="/images/dummy/cat-original.png"
-                                alt="subject"
-                                className="absolute left-1/2 top-1/2 h-56 w-56 -translate-x-1/2 -translate-y-1/2 rounded-full object-cover shadow-xl ring-4 ring-white/70"
-                            />
+                            {
+                                isImageLoaded ? (
+                                    <>
+                                        <img
+                                            src="/images/dummy/cat-original.png"
+                                            alt="subject"
+                                            className="absolute left-1/2 top-1/2 h-56 w-56 -translate-x-1/2 -translate-y-1/2 rounded-full object-cover shadow-xl ring-4 ring-white/70" />
+                                        <style>
+                                            {`
+                                                @keyframes scan-sweep {
+                                                    0% { background-position: -60% 50%; }
+                                                    100% { background-position: 160% 50%; }
+                                                }
+                                                @keyframes scan-pulse {
+                                                    0%,100% { filter: brightness(1); }
+                                                    50% { filter: brightness(1.25); }
+                                                }
+                                                @keyframes scan-glow {
+                                                    0%,100% { opacity: .35; transform: scale(1); }
+                                                    50% { opacity: .6; transform: scale(1.02); }
+                                                }
+                                            `}
+                                        </style>
 
-                            <div
-                                className="absolute left-1/2 top-1/2 h-56 w-56 -translate-x-1/2 -translate-y-1/2 rounded-full overflow-hidden"
-                                aria-hidden="true"
-                            >
-                                <div
-                                    className="h-full w-full"
-                                    style={{
-                                        WebkitMaskImage: "url('/images/dummy/cat-original-subject.png')",
-                                        maskImage: "url('/images/dummy/cat-original-subject.png')",
-                                        WebkitMaskSize: 'cover',
-                                        maskSize: 'cover',
-                                        WebkitMaskRepeat: 'no-repeat',
-                                        maskRepeat: 'no-repeat',
-                                        WebkitMaskPosition: 'center',
-                                        maskPosition: 'center',
-                                        background:
-                                            'linear-gradient(100deg, rgba(0,145,243,0) 0%, rgba(0,145,243,0.55) 40%, rgba(0,145,243,0.85) 50%, rgba(0,145,243,0.55) 60%, rgba(0,145,243,0) 100%)',
-                                        animation: 'scan-sweep 2.4s linear infinite, scan-pulse 2.2s ease-in-out infinite',
-                                        backgroundSize: '220% 100%',
-                                        backgroundPosition: '-50% 50%',
-                                        mixBlendMode: 'screen',
-                                    }}
-                                />
+                                        <div
+                                            className="absolute left-1/2 top-1/2 h-56 w-56 -translate-x-1/2 -translate-y-1/2 rounded-full overflow-hidden"
+                                            aria-hidden="true"
+                                        >
+                                            <div
+                                                className="h-full w-full"
+                                                style={{
+                                                    WebkitMaskImage: "url('/images/dummy/cat-original-subject.png')",
+                                                    maskImage: "url('/images/dummy/cat-original-subject.png')",
+                                                    WebkitMaskSize: 'cover',
+                                                    maskSize: 'cover',
+                                                    WebkitMaskRepeat: 'no-repeat',
+                                                    maskRepeat: 'no-repeat',
+                                                    WebkitMaskPosition: 'center',
+                                                    maskPosition: 'center',
+                                                    background:
+                                                        'linear-gradient(100deg, rgba(0,145,243,0) 0%, rgba(0,145,243,0.55) 40%, rgba(0,145,243,0.85) 50%, rgba(0,145,243,0.55) 60%, rgba(0,145,243,0) 100%)',
+                                                    animation: 'scan-sweep 2.4s linear infinite, scan-pulse 2.2s ease-in-out infinite',
+                                                    backgroundSize: '220% 100%',
+                                                    backgroundPosition: '-50% 50%',
+                                                    mixBlendMode: 'screen',
+                                                }}
+                                            />
 
-                                <div
-                                    className="pointer-events-none absolute inset-0"
-                                    style={{
-                                        WebkitMaskImage: "url('/images/dummy/cat-original-subject.png')",
-                                        maskImage: "url('/images/dummy/cat-original-subject.png')",
-                                        WebkitMaskSize: 'cover',
-                                        maskSize: 'cover',
-                                        WebkitMaskRepeat: 'no-repeat',
-                                        maskRepeat: 'no-repeat',
-                                        WebkitMaskPosition: 'center',
-                                        maskPosition: 'center',
-                                        background:
-                                            'radial-gradient(60% 60% at 50% 50%, rgba(33,166,255,0.25) 0%, rgba(33,166,255,0.1) 50%, rgba(33,166,255,0) 100%)',
-                                        animation: 'scan-glow 3.5s ease-in-out infinite',
-                                        mixBlendMode: 'screen',
-                                    }}
-                                />
-                            </div>
-
-                            <style>
-                                {`
-                                    @keyframes scan-sweep {
-                                        0% { background-position: -60% 50%; }
-                                        100% { background-position: 160% 50%; }
-                                    }
-                                    @keyframes scan-pulse {
-                                        0%,100% { filter: brightness(1); }
-                                        50% { filter: brightness(1.25); }
-                                    }
-                                    @keyframes scan-glow {
-                                        0%,100% { opacity: .35; transform: scale(1); }
-                                        50% { opacity: .6; transform: scale(1.02); }
-                                    }
-                                `}
-                            </style>
+                                            <div
+                                                className="pointer-events-none absolute inset-0"
+                                                style={{
+                                                    WebkitMaskImage: "url('/images/dummy/cat-original-subject.png')",
+                                                    maskImage: "url('/images/dummy/cat-original-subject.png')",
+                                                    WebkitMaskSize: 'cover',
+                                                    maskSize: 'cover',
+                                                    WebkitMaskRepeat: 'no-repeat',
+                                                    maskRepeat: 'no-repeat',
+                                                    WebkitMaskPosition: 'center',
+                                                    maskPosition: 'center',
+                                                    background:
+                                                        'radial-gradient(60% 60% at 50% 50%, rgba(33,166,255,0.25) 0%, rgba(33,166,255,0.1) 50%, rgba(33,166,255,0) 100%)',
+                                                    animation: 'scan-glow 3.5s ease-in-out infinite',
+                                                    mixBlendMode: 'screen',
+                                                }}
+                                            />
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div className='absolute left-1/2 top-1/2 h-56 w-56 -translate-x-1/2 -translate-y-1/2 rounded-full object-cover bg-white'>
+                                        <LottiePlayer src="/animations/waiting-cat.lottie" />
+                                    </div>
+                                )
+                            }
                         </div>
 
                         <div className="flex flex-col items-center gap-2">
