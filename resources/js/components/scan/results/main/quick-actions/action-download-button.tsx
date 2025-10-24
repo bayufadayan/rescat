@@ -1,4 +1,3 @@
-// DownloadButton.tsx
 import React from 'react';
 import IconPlaceholder from './icon-placeholder';
 
