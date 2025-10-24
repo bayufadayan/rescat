@@ -5,16 +5,18 @@ import DownloadButton from './quick-actions/action-download-button';
 import ReportButton from './quick-actions/action-report-button';
 import MoreMenu from './quick-actions/action-more-menu';
 import ContactModal from './quick-actions/contact-modal';
+import ReportModal from './quick-actions/report-modal';
 import vetContacts from '@/constants/vet-contacts-data';
 
 export default function QuickActionBar() {
     const [openContacts, setOpenContacts] = useState(false);
+    const [openReport, setOpenReport] = useState(false);
 
     return (
         <>
             <div className="rounded-full bg-white/50 gap-0 p-1 flex justify-center items-center">
                 <div className="bg-white rounded-full gap-2 flex justify-center items-center p-1">
-                    <ReportButton />
+                    <ReportButton onClick={() => setOpenReport(true)} />
                     <CallButton onClick={() => setOpenContacts(true)} />
                     <DownloadButton />
                 </div>
@@ -29,6 +31,12 @@ export default function QuickActionBar() {
                 open={openContacts}
                 onOpenChange={setOpenContacts}
                 contacts={vetContacts}
+            />
+
+            {/* Modal report hasil pemeriksaan */}
+            <ReportModal
+                open={openReport}
+                onOpenChange={setOpenReport}
             />
         </>
     );
