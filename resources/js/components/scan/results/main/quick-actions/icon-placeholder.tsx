@@ -8,7 +8,7 @@ export default function IconPlaceholder({
     onClick?: () => void;
 }) {
     return (
-        <button className="rounded-full relative p-2" onClick={onClick}>
+        <button className="rounded-full relative p-2" onClick={onClick} type="button">
             <figure className="h-5 w-5 flex shrink-0 grow-0 overflow-hidden">
                 {children}
             </figure>
