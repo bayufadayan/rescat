@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import CallButton from './quick-actions/action-call-button';
 import DownloadButton from './quick-actions/action-download-button';
 import ReportButton from './quick-actions/action-report-button';
-import MoreMenu from './quick-actions/action-more-menu';
+import MoreMenu from './quick-actions/more-menu';
 import ContactModal from './quick-actions/contact-modal';
 import ReportModal from './quick-actions/report-modal';
 import vetContacts from '@/constants/vet-contacts-data';

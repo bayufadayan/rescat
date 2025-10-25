@@ -1,7 +1,7 @@
 import React from 'react';
 import IconPlaceholder from './icon-placeholder';
 
-export default function CallButton() {
+export default function MoreButton() {
     return (
         <IconPlaceholder>
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="4" viewBox="0 0 20 5" fill="none" className='flex self-center'>
