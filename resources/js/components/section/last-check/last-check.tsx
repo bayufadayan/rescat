@@ -8,7 +8,7 @@ export default function LastCheck() {
             <div className='flex justify-between px-1'>
                 <h3 className="font-semibold text-lg">Last Check</h3>
 
-                <Link href={"/history"} className="flex gap-0.5 text-black/60 text-sm self-center items-center">
+                <Link href={"/scan/results"} className="flex gap-0.5 text-black/60 text-sm self-center items-center">
                     Lainnya
                     <ChevronRight size={16} />
                 </Link>

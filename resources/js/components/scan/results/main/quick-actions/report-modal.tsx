@@ -32,9 +32,7 @@ export default function ReportModal({ open, onOpenChange }: Props) {
     const [contact, setContact] = useState('');
 
     const toggleReason = (val: string) =>
-        setReasons((prev) =>
-            prev.includes(val) ? prev.filter((v) => v !== val) : [...prev, val]
-        );
+        setReasons(prev => (prev.includes(val) ? prev.filter(v => v !== val) : [...prev, val]));
 
     const onSubmit = () => {
         console.log({ id: RESULT.id, category, reasons, notes, contact });
@@ -45,17 +43,18 @@ export default function ReportModal({ open, onOpenChange }: Props) {
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent
                 className="
-          z-[120] sm:max-w-[620px]
-          bg-white
+          z-[120]
+          sm:max-w-[640px]
           p-0
           overflow-hidden
           rounded-2xl
-          mt-8 mb-8
-          max-h-[calc(100dvh-4rem)]
+          my-6 sm:my-10
+          max-h-[85dvh]
+          bg-white
           flex flex-col
         "
             >
-                {/* Header */}
+                {/* Header (fixed di atas) */}
                 <DialogHeader className="px-5 pt-5 pb-3 shrink-0">
                     <DialogTitle className="text-base font-semibold">
                         Buat Laporan Pemeriksaan
@@ -65,8 +64,11 @@ export default function ReportModal({ open, onOpenChange }: Props) {
                     </DialogDescription>
                 </DialogHeader>
 
-                {/* Scrollable content */}
-                <div className="flex-1 overflow-y-auto px-5 space-y-5 pb-8">
+                {/* Isi yang bisa discroll, dengan jarak atas & bawah yang lega */}
+                <div className="flex-1 overflow-y-auto px-5 pt-2 pb-10 sm:pb-12 space-y-5" style={{
+                    scrollbarWidth: "thin",
+                    scrollbarColor: "#a0aec0 transparent",
+                }}>
                     {/* Card ringkas */}
                     <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-3.5 shadow-sm">
                         <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-slate-100 ring-1 ring-slate-200">
@@ -132,8 +134,8 @@ export default function ReportModal({ open, onOpenChange }: Props) {
                                 <label
                                     key={val}
                                     className={`cursor-pointer select-none rounded-full border px-3 py-1.5 text-xs ${reasons.includes(val)
-                                            ? 'border-sky-300 bg-sky-50 text-sky-700'
-                                            : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                                        ? 'border-sky-300 bg-sky-50 text-sky-700'
+                                        : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
                                         }`}
                                 >
                                     <input
@@ -163,7 +165,7 @@ export default function ReportModal({ open, onOpenChange }: Props) {
                     </div>
 
                     {/* Kontak */}
-                    <div className="grid gap-1.5 pb-2">
+                    <div className="grid gap-1.5">
                         <label className="text-sm font-medium text-slate-800">Kontak (opsional)</label>
                         <input
                             value={contact}
@@ -174,8 +176,8 @@ export default function ReportModal({ open, onOpenChange }: Props) {
                     </div>
                 </div>
 
-                {/* Footer */}
-                <div className="shrink-0 w-full bg-white/95 px-5 pb-5 pt-3 backdrop-blur">
+                {/* Footer (fixed di bawah, dengan safe-area) */}
+                <div className="shrink-0 w-full bg-white/95 px-5 pt-3 pb-[calc(env(safe-area-inset-bottom)+16px)] backdrop-blur">
                     <div className="flex gap-2">
                         <DialogClose asChild>
                             <button
