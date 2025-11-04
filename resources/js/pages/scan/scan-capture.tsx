@@ -8,6 +8,7 @@ import { computeCropFromOverlay } from '@/lib/helper/compute-crop-from-overlay';
 import WatermarkBackground from '@/components/scan/capture/watermark-bg';
 import { useTorch } from '@/hooks/use-torch';
 import { useRoute } from 'ziggy-js';
+import { drawToSquareCanvas, canvasToBlob, compressWithBackoff } from '@/lib/helper/compress';
 
 export default function ScanCapture() {
     const route = useRoute();
@@ -27,7 +28,7 @@ export default function ScanCapture() {
         refreshSupport();
     };
 
-    const handleCapture = useCallback((): void => {
+    const handleCapture = useCallback(async (): Promise<void> => {
         const video: HTMLVideoElement | undefined = webcamRef.current?.video as HTMLVideoElement | undefined;
         const container = containerRef.current;
         const frame = frameRef.current;
@@ -44,23 +45,34 @@ export default function ScanCapture() {
             videoHeight: video.videoHeight,
         });
 
-        const size = Math.round(Math.min(sw, sh));
-        const canvas = document.createElement('canvas');
-        canvas.width = size;
-        canvas.height = size;
+        // Render area video -> square 720
+        const squareCanvas = drawToSquareCanvas(video, sx, sy, Math.round(sw), Math.round(sh), 720);
 
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
-        ctx.imageSmoothingQuality = 'high';
-        ctx.drawImage(video, sx, sy, size, size, 0, 0, size, size);
+        // Blob awal (kualitas tinggi dulu), lalu kompres/backoff ≤ 500KB
+        const initialBlob = await canvasToBlob(squareCanvas, 'image/jpeg', 0.92);
+        const result = await compressWithBackoff(initialBlob, 500);
 
-        const dataUrl = canvas.toDataURL('image/png');
-        setLastShot(dataUrl);
+        // Preview & meta
+        const previewDataUrl = result.dataUrl;
+        setLastShot(previewDataUrl);
+
+        const meta = {
+            width: result.width,
+            height: result.height,
+            mime: result.mime,
+            quality: result.quality,
+            sizeBytes: result.sizeBytes,
+            createdAt: new Date().toISOString(),
+            source: 'camera',
+        };
+
         try {
-            sessionStorage.setItem('scan:pendingImage', dataUrl);
+            sessionStorage.setItem('scan:pendingImage', previewDataUrl);
+            sessionStorage.setItem('scan:pendingMeta', JSON.stringify(meta));
         } catch {
-            // no-op
+            /* no-op */
         }
+
         window.location.href = route('scan.details');
     }, [route]);
 

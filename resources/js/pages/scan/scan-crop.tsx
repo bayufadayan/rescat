@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Cropper from 'react-easy-crop';
 import { Button } from '@/components/ui/button';
 import { useRoute } from 'ziggy-js';
+import { drawToSquareCanvas, canvasToBlob, compressWithBackoff } from '@/lib/helper/compress';
 
 type Area = { x: number; y: number; width: number; height: number };
 
@@ -17,7 +18,7 @@ export default function ScanCrop() {
             const v = sessionStorage.getItem('scan:toCrop');
             if (v) setSrc(v);
         } catch {
-            //ignore
+            // ignore
         }
     }, []);
 
@@ -27,36 +28,45 @@ export default function ScanCrop() {
 
     const doCrop = useCallback(async () => {
         if (!src || !area) return;
+
         const image = await new Promise<HTMLImageElement>((resolve, reject) => {
             const i = new Image();
             i.onload = () => resolve(i);
             i.onerror = reject;
             i.src = src;
         });
-        const canvas = document.createElement('canvas');
-        canvas.width = Math.round(area.width);
-        canvas.height = Math.round(area.height);
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
-        ctx.imageSmoothingQuality = 'high';
-        ctx.drawImage(
+
+        // Render hasil crop ke square 720
+        const squareCanvas = drawToSquareCanvas(
             image,
-            area.x,
-            area.y,
-            area.width,
-            area.height,
-            0,
-            0,
-            area.width,
-            area.height
+            area.x, area.y, area.width, area.height,
+            720
         );
-        const dataUrl = canvas.toDataURL('image/png');
+
+        // Blob awal kualitas tinggi -> kompres/backoff ≤ 500KB
+        const initialBlob = await canvasToBlob(squareCanvas, 'image/jpeg', 0.92);
+        const result = await compressWithBackoff(initialBlob, 500);
+
+        // Simpan preview & meta
+        const previewDataUrl = result.dataUrl;
+        const meta = {
+            width: result.width,
+            height: result.height,
+            mime: result.mime,
+            quality: result.quality,
+            sizeBytes: result.sizeBytes,
+            createdAt: new Date().toISOString(),
+            source: 'gallery-crop',
+        };
+
         try {
-            sessionStorage.setItem('scan:pendingImage', dataUrl);
+            sessionStorage.setItem('scan:pendingImage', previewDataUrl);
+            sessionStorage.setItem('scan:pendingMeta', JSON.stringify(meta));
             sessionStorage.removeItem('scan:toCrop');
         } catch {
-            //ignore
+            // ignore
         }
+
         window.location.href = route('scan.details');
     }, [src, area, route]);
 

@@ -6,14 +6,31 @@ import { Check, X } from 'lucide-react';
 export default function MediaPreview() {
     const [hero, setHero] = useState<string | null>(null);
 
+    function formatBytes(bytes: number) {
+        if (!Number.isFinite(bytes) || bytes <= 0) return '–';
+        const units = ['B', 'KB', 'MB', 'GB'];
+        let i = 0;
+        let val = bytes;
+        while (val >= 1024 && i < units.length - 1) { val /= 1024; i++; }
+        const fixed = i === 0 ? 0 : (val < 10 ? 2 : 1); // 2 desimal untuk <10
+        return `${val.toFixed(fixed)} ${units[i]}`;
+    }
+
+    const [meta, setMeta] = useState<null | {
+        width: number; height: number; mime: string; quality: number;
+        sizeBytes: number; createdAt: string; source: string;
+    }>(null);
+
+
     useEffect(() => {
         try {
             const v = sessionStorage.getItem('scan:pendingImage');
             if (v) setHero(v);
-        } catch {
-            // ignore
-        }
+            const m = sessionStorage.getItem('scan:pendingMeta');
+            if (m) setMeta(JSON.parse(m));
+        } catch { /* ignore */ }
     }, []);
+
 
     return (
         <div className="w-full md:max-w-2xl max-w-full pt-0 relative">
@@ -46,6 +63,11 @@ export default function MediaPreview() {
                         </figure>
                     </button>
                 </div>
+                {meta && (
+                    <div className="px-3 py-1 mt-2 mx-auto w-fit rounded-full bg-white text-slate-700 text-xs shadow">
+                        {`${formatBytes(meta.sizeBytes)} • JPEG q${meta.quality.toFixed(1)} • ${meta.width}×${meta.height}`}
+                    </div>
+                )}
             </div>
             <div className="mt-2 flex w-full justify-center">
                 <div className="grid place-items-center rounded-full bg-white shadow-md px-2 py-0">
