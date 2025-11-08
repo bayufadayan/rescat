@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useMemo, useState } from "react";
 import { ChevronUp, Check, X, AlertTriangle } from "lucide-react";
 
@@ -153,6 +152,10 @@ export default function MediaPreview({ phase = 'idle', errorMsg = '' }: Props) {
                         <span>Gagal menganalisis{errorMsg ? ` — ${errorMsg}` : ''}</span>
                     </div>
                 )}
+                
+                <div className="mt-1 text-[10px] text-white/80 text-center">
+                    {typeof window !== 'undefined' ? (sessionStorage.getItem('scan:rid') ?? '') : ''}
+                </div>
             </div>
 
             {/* indicator kecil di bawah (tetap) */}

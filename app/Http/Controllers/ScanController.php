@@ -35,12 +35,16 @@ class ScanController extends Controller
         $file = $request->file('file');
 
         try {
-            $resp = Http::timeout(5)
-                ->retry(1, 200)
+            $resp = Http::timeout(5)->retry(1, 200)
                 ->attach('file', file_get_contents($file->getRealPath()), $file->getClientOriginalName())
                 ->post($flaskUrl);
 
-            return response()->json($resp->json(), $resp->status());
+            $payload = $resp->json();
+            $status  = $resp->status();
+            $rid     = $resp->header('X-Request-ID');
+
+            return response()->json($payload, $status)
+                ->withHeaders($rid ? ['X-Request-ID' => $rid] : []);
         } catch (\Throwable $e) {
             return response()->json([
                 'ok' => false,

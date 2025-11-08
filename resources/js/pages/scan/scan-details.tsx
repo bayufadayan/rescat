@@ -7,8 +7,8 @@ import { reverseGeocode } from "@/lib/helper/reverse-geocode";
 import SideForm from "@/components/scan/details/side-form";
 import { useRoute } from 'ziggy-js';
 import { useIsMobile } from "@/hooks/use-mobile";
-import { dataURLtoBlob, fetchWithTimeout, getCsrfToken } from '@/lib/helper/upload';
-import type { CatApiResponse } from '@/types/scan';
+import { dataURLtoBlob, getCsrfToken, postWithRetry, humanizeError } from '@/lib/helper/upload';
+// import type { CatApiResponse } from '@/types/scan';
 
 type Phase = 'idle' | 'uploading' | 'analyzing' | 'success' | 'fail';
 
@@ -86,23 +86,26 @@ export default function ScanDetails() {
                 const csrf = getCsrfToken();
 
                 setPhase('analyzing');
-                const res = await fetchWithTimeout(
+                const res = await postWithRetry(
                     route('scan.analyze'),
-                    {
-                        method: 'POST',
-                        body: form,
-                        headers: csrf ? { 'X-CSRF-TOKEN': csrf } : undefined,
-                    },
+                    form,
+                    csrf ? { 'X-CSRF-TOKEN': csrf } : undefined,
                     Number(import.meta.env.VITE_SCAN_TIMEOUT_MS ?? 5000)
                 );
 
-                let data: CatApiResponse;
-                try {
-                    data = await res.json();
-                } catch {
+                let data: any;
+                try { data = await res.json(); } catch { /* ... */ }
+
+                if (!res.ok || data?.ok === false) {
                     setPhase('fail');
-                    setErrorMsg('Respons tidak valid dari server.');
-                    return;
+                    const msg = humanizeError(data?.code, res.status);
+                    setErrorMsg(msg);
+                } else {
+                    setPhase('success');
+                    sessionStorage.setItem('scan:result', JSON.stringify(data));
+                    
+                    const rid = res.headers.get('X-Request-ID');
+                    if (rid) sessionStorage.setItem('scan:rid', rid);
                 }
 
                 if (!res.ok || (data as any).ok === false) {
