@@ -45,14 +45,12 @@ export default function MediaPreview({ phase = "idle", errorMsg = "" }: Props) {
         } catch {
             /* ignore */
         }
-    }, []);
+    }, [phase]); // refresh tampilan saat status berubah
 
     const verdict = useMemo(() => {
         if (phase === "uploading" || phase === "analyzing") return "loading" as const;
         if (phase === "fail") return "fail" as const;
-        if (phase === "success") {
-            return result?.label === "CAT" ? "cat" : "noncat";
-        }
+        if (phase === "success") return result?.label === "CAT" ? "cat" : "noncat";
         return "idle" as const;
     }, [phase, result?.label]);
 
@@ -74,9 +72,10 @@ export default function MediaPreview({ phase = "idle", errorMsg = "" }: Props) {
         return `${val.toFixed(fixed)} ${units[i]}`;
     }
 
-    const requestId = useMemo(() => {
-        if (typeof window === "undefined") return "";
-        return sessionStorage.getItem("scan:rid") ?? "";
+    const [requestId, setRequestId] = useState("");
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+        setRequestId(sessionStorage.getItem("scan:rid") ?? "");
     }, [phase]);
 
     const isAnalyzing = phase === "uploading" || phase === "analyzing";

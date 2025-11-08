@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import MediaPreview from "@/components/scan/details/media-preview";
 import BottomForm from "@/components/scan/details/bottom-form";
 import type { Coords, GeoStatus, Address } from "@/types/geo";
@@ -30,7 +30,7 @@ export default function ScanDetails() {
     const [phase, setPhase] = useState<Phase>("idle");
     const [errorMsg, setErrorMsg] = useState<string>("");
 
-    // ---- GEO (tetap seperti semula) ----
+    // ===== GEO (tetap) =====
     const askLocation = async () => {
         setGeoStatus("locating");
         setAddr(null);
@@ -65,21 +65,31 @@ export default function ScanDetails() {
         askLocation();
     }, []);
 
-    // ---- GUARD: jangan masuk tanpa gambar ----
+    // ===== GUARD sekali saat mount: boleh lanjut kalau ada pendingImage ATAU sudah ada result =====
     useEffect(() => {
         const hasImg = !!sessionStorage.getItem("scan:pendingImage");
-        if (!hasImg) {
+        const hasResult = !!sessionStorage.getItem("scan:result");
+        if (!hasImg && !hasResult) {
             window.location.href = route("scan.capture");
         }
-    }, [route]);
+        // sengaja [] biar tidak re-run
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
-    // ---- Kirim gambar (bisa dipanggil ulang saat retry) ----
-    const analyzeOnce = async () => {
+    // ===== Freeze URL & timeout supaya dependensi stabil =====
+    const analyzeUrl = useMemo(() => route("scan.analyze"), [route]);
+    const timeoutMs = useMemo(
+        () => Number((import.meta as any).env?.VITE_SCAN_TIMEOUT_MS ?? 5000),
+        []
+    );
+
+    // ===== Kirim gambar (dipakai auto-run & tombol retry) =====
+    const analyzeOnce = useCallback(async () => {
         try {
             const dataUrl = sessionStorage.getItem("scan:pendingImage");
             const meta = sessionStorage.getItem("scan:pendingMeta");
             if (!dataUrl || !meta) {
-                window.location.href = route("scan.capture");
+                // Tidak auto-redirect di sini; guard awal sudah handle
                 return;
             }
 
@@ -98,10 +108,10 @@ export default function ScanDetails() {
             setPhase("analyzing");
             const csrf = getCsrfToken();
             const res = await postWithRetry(
-                route("scan.analyze"),
+                analyzeUrl,
                 form,
                 csrf ? { "X-CSRF-TOKEN": csrf } : undefined,
-                Number((import.meta as any).env?.VITE_SCAN_TIMEOUT_MS ?? 5000)
+                timeoutMs
             );
 
             let data: CatApiResponse | any;
@@ -125,32 +135,32 @@ export default function ScanDetails() {
             const rid = res.headers.get("X-Request-ID");
             if (rid) sessionStorage.setItem("scan:rid", rid);
 
-            // cleanup pending image/meta setelah berhasil
-            sessionStorage.removeItem("scan:pendingImage");
-            sessionStorage.removeItem("scan:pendingMeta");
-
-            // (opsional) auto-redirect:
-            // setTimeout(() => window.location.href = route('scan.results'), 1200);
+            // ⚠️ TIDAK menghapus pendingImage/pendingMeta di sini — biar halaman diem.
         } catch (e: any) {
             setPhase("fail");
             setErrorMsg(
                 e?.name === "AbortError" ? "Timeout koneksi." : e?.message ?? "Terjadi kesalahan."
             );
         }
-    };
+    }, [analyzeUrl, timeoutMs]);
 
-    // run sekali saat masuk
+    // ===== Auto-run HANYA SEKALI per mount walau re-render berkali-kali =====
+    const autoSentRef = useRef(false);
     useEffect(() => {
-        analyzeOnce();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+        if (autoSentRef.current) return;
+        const hasImg = !!sessionStorage.getItem("scan:pendingImage");
+        if (hasImg) {
+            autoSentRef.current = true;
+            void analyzeOnce();
+        }
+    }, [analyzeOnce]);
 
-    // event retry dari MediaPreview
+    // ===== Listener "scan:retry" =====
     useEffect(() => {
         const handler = () => analyzeOnce();
         window.addEventListener("scan:retry", handler);
         return () => window.removeEventListener("scan:retry", handler);
-    }, []);
+    }, [analyzeOnce]);
 
     return (
         <div className="min-h-dvh w-full bg-[#0da0ff] text-slate-900 flex justify-center">
