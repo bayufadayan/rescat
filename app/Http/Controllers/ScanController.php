@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Inertia\Inertia;
 
 class ScanController extends Controller
@@ -23,6 +24,31 @@ class ScanController extends Controller
     public function crop()
     {
         return Inertia::render('scan/scan-crop');
+    }
+    public function analyze(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|image|mimes:jpg,jpeg,png|max:512',
+        ]);
+
+        $flaskUrl = rtrim(env('FLASK_CAT_API_URL', 'http://127.0.0.1:5000'), '/') . '/predict/image';
+        $file = $request->file('file');
+
+        try {
+            $resp = Http::timeout(5)
+                ->retry(1, 200)
+                ->attach('file', file_get_contents($file->getRealPath()), $file->getClientOriginalName())
+                ->post($flaskUrl);
+
+            return response()->json($resp->json(), $resp->status());
+        } catch (\Throwable $e) {
+            return response()->json([
+                'ok' => false,
+                'code' => 'FLASK_UNREACHABLE',
+                'message' => 'Gagal terhubung ke server analisis.',
+                'error' => $e->getMessage(),
+            ], 502);
+        }
     }
     public function details()
     {
