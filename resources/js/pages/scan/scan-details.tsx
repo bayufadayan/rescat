@@ -5,12 +5,17 @@ import BottomForm from "@/components/scan/details/bottom-form";
 import type { Coords, GeoStatus, Address } from "@/types/geo";
 import { reverseGeocode } from "@/lib/helper/reverse-geocode";
 import SideForm from "@/components/scan/details/side-form";
-import { useRoute } from 'ziggy-js';
+import { useRoute } from "ziggy-js";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { dataURLtoBlob, getCsrfToken, postWithRetry, humanizeError } from '@/lib/helper/upload';
-// import type { CatApiResponse } from '@/types/scan';
+import {
+    dataURLtoBlob,
+    getCsrfToken,
+    postWithRetry,
+    humanizeError,
+} from "@/lib/helper/upload";
+import type { CatApiResponse } from "@/types/scan";
 
-type Phase = 'idle' | 'uploading' | 'analyzing' | 'success' | 'fail';
+type Phase = "idle" | "uploading" | "analyzing" | "success" | "fail";
 
 export default function ScanDetails() {
     const route = useRoute();
@@ -22,9 +27,10 @@ export default function ScanDetails() {
     const [addr, setAddr] = useState<Address | null>(null);
     const [updatedAt, setUpdatedAt] = useState<Date | null>(null);
 
-    const [phase, setPhase] = useState<Phase>('idle');
-    const [errorMsg, setErrorMsg] = useState<string>('');
+    const [phase, setPhase] = useState<Phase>("idle");
+    const [errorMsg, setErrorMsg] = useState<string>("");
 
+    // ---- GEO (tetap seperti semula) ----
     const askLocation = async () => {
         setGeoStatus("locating");
         setAddr(null);
@@ -59,72 +65,92 @@ export default function ScanDetails() {
         askLocation();
     }, []);
 
+    // ---- GUARD: jangan masuk tanpa gambar ----
     useEffect(() => {
-        const doAnalyze = async () => {
-            try {
-                const dataUrl = sessionStorage.getItem('scan:pendingImage');
-                if (!dataUrl) {
-                    // gak ada gambar → balik ke capture
-                    window.location.href = route('scan.capture');
-                    return;
-                }
-
-                setPhase('uploading');
-                const blob = dataURLtoBlob(dataUrl);
-
-                // optional guard: maksimum 512 KB (sinkron dengan Laravel)
-                if (blob.size > 512 * 1024) {
-                    setPhase('fail');
-                    setErrorMsg('Ukuran gambar melebihi 512KB.');
-                    return;
-                }
-
-                const form = new FormData();
-                form.append('file', blob, 'capture.jpg');
-
-                // CSRF untuk web route
-                const csrf = getCsrfToken();
-
-                setPhase('analyzing');
-                const res = await postWithRetry(
-                    route('scan.analyze'),
-                    form,
-                    csrf ? { 'X-CSRF-TOKEN': csrf } : undefined,
-                    Number(import.meta.env.VITE_SCAN_TIMEOUT_MS ?? 5000)
-                );
-
-                let data: any;
-                try { data = await res.json(); } catch { /* ... */ }
-
-                if (!res.ok || data?.ok === false) {
-                    setPhase('fail');
-                    const msg = humanizeError(data?.code, res.status);
-                    setErrorMsg(msg);
-                } else {
-                    setPhase('success');
-                    sessionStorage.setItem('scan:result', JSON.stringify(data));
-                    
-                    const rid = res.headers.get('X-Request-ID');
-                    if (rid) sessionStorage.setItem('scan:rid', rid);
-                }
-
-                if (!res.ok || (data as any).ok === false) {
-                    setPhase('fail');
-                    const msg = (data as any)?.message ?? `Gagal (${res.status})`;
-                    setErrorMsg(msg);
-                } else {
-                    setPhase('success');
-                    // simpan hasil buat MediaPreview / halaman lain
-                    sessionStorage.setItem('scan:result', JSON.stringify(data));
-                }
-            } catch (e: any) {
-                setPhase('fail');
-                setErrorMsg(e?.name === 'AbortError' ? 'Timeout koneksi.' : (e?.message ?? 'Terjadi kesalahan.'));
-            }
-        };
-
-        doAnalyze();
+        const hasImg = !!sessionStorage.getItem("scan:pendingImage");
+        if (!hasImg) {
+            window.location.href = route("scan.capture");
+        }
     }, [route]);
+
+    // ---- Kirim gambar (bisa dipanggil ulang saat retry) ----
+    const analyzeOnce = async () => {
+        try {
+            const dataUrl = sessionStorage.getItem("scan:pendingImage");
+            const meta = sessionStorage.getItem("scan:pendingMeta");
+            if (!dataUrl || !meta) {
+                window.location.href = route("scan.capture");
+                return;
+            }
+
+            setPhase("uploading");
+            const blob = dataURLtoBlob(dataUrl);
+
+            if (blob.size > 512 * 1024) {
+                setPhase("fail");
+                setErrorMsg("Ukuran gambar melebihi 512KB.");
+                return;
+            }
+
+            const form = new FormData();
+            form.append("file", blob, "capture.jpg");
+
+            setPhase("analyzing");
+            const csrf = getCsrfToken();
+            const res = await postWithRetry(
+                route("scan.analyze"),
+                form,
+                csrf ? { "X-CSRF-TOKEN": csrf } : undefined,
+                Number((import.meta as any).env?.VITE_SCAN_TIMEOUT_MS ?? 5000)
+            );
+
+            let data: CatApiResponse | any;
+            try {
+                data = await res.json();
+            } catch {
+                setPhase("fail");
+                setErrorMsg("Respons tidak valid dari server.");
+                return;
+            }
+
+            if (!res.ok || (data as any)?.ok === false) {
+                setPhase("fail");
+                setErrorMsg(humanizeError((data as any)?.code, res.status));
+                return;
+            }
+
+            // success
+            setPhase("success");
+            sessionStorage.setItem("scan:result", JSON.stringify(data));
+            const rid = res.headers.get("X-Request-ID");
+            if (rid) sessionStorage.setItem("scan:rid", rid);
+
+            // cleanup pending image/meta setelah berhasil
+            sessionStorage.removeItem("scan:pendingImage");
+            sessionStorage.removeItem("scan:pendingMeta");
+
+            // (opsional) auto-redirect:
+            // setTimeout(() => window.location.href = route('scan.results'), 1200);
+        } catch (e: any) {
+            setPhase("fail");
+            setErrorMsg(
+                e?.name === "AbortError" ? "Timeout koneksi." : e?.message ?? "Terjadi kesalahan."
+            );
+        }
+    };
+
+    // run sekali saat masuk
+    useEffect(() => {
+        analyzeOnce();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    // event retry dari MediaPreview
+    useEffect(() => {
+        const handler = () => analyzeOnce();
+        window.addEventListener("scan:retry", handler);
+        return () => window.removeEventListener("scan:retry", handler);
+    }, []);
 
     return (
         <div className="min-h-dvh w-full bg-[#0da0ff] text-slate-900 flex justify-center">

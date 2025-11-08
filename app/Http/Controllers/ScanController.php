@@ -35,7 +35,8 @@ class ScanController extends Controller
         $file = $request->file('file');
 
         try {
-            $resp = Http::timeout(5)->retry(1, 200)
+            $resp = Http::timeout(5)
+                ->retry(1, 200)
                 ->attach('file', file_get_contents($file->getRealPath()), $file->getClientOriginalName())
                 ->post($flaskUrl);
 
@@ -50,7 +51,6 @@ class ScanController extends Controller
                 'ok' => false,
                 'code' => 'FLASK_UNREACHABLE',
                 'message' => 'Gagal terhubung ke server analisis.',
-                'error' => $e->getMessage(),
             ], 502);
         }
     }
