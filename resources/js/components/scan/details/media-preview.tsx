@@ -3,7 +3,12 @@ import React, { useEffect, useState } from "react";
 import { ChevronUp } from "lucide-react";
 import { Check, X } from 'lucide-react';
 
-export default function MediaPreview() {
+type Props = {
+    phase?: 'idle' | 'uploading' | 'analyzing' | 'success' | 'fail';
+    errorMsg?: string;
+};
+
+export default function MediaPreview({ phase = 'idle', errorMsg = '' }: Props) {
     const [hero, setHero] = useState<string | null>(null);
 
     function formatBytes(bytes: number) {
