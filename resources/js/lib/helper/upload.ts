@@ -19,7 +19,11 @@ export async function fetchWithTimeout(
     const ctrl = new AbortController();
     const id = setTimeout(() => ctrl.abort(), ms);
     try {
-        return await fetch(input, { ...init, signal: ctrl.signal });
+        return await fetch(input, {
+            ...init,
+            signal: ctrl.signal,
+            credentials: 'same-origin', // <— penting saat dev 5173 ↔ 8000
+        });
     } finally {
         clearTimeout(id);
     }

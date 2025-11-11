@@ -137,11 +137,15 @@ export default function ScanDetails() {
 
             // ⚠️ TIDAK menghapus pendingImage/pendingMeta di sini — biar halaman diem.
         } catch (e: any) {
+            console.error('analyzeOnce error:', e);
             setPhase("fail");
             setErrorMsg(
-                e?.name === "AbortError" ? "Timeout koneksi." : e?.message ?? "Terjadi kesalahan."
+                e?.name === "AbortError"
+                    ? "Timeout koneksi."
+                    : e?.message ?? "Terjadi kesalahan."
             );
         }
+
     }, [analyzeUrl, timeoutMs]);
 
     // ===== Auto-run HANYA SEKALI per mount walau re-render berkali-kali =====

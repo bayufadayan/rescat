@@ -1,24 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useMemo, useState } from "react";
-import { ChevronUp, Check, X, AlertTriangle } from "lucide-react";
+import { ChevronUp, Check, X, AlertTriangle, Info, ImageIcon } from "lucide-react";
+import type { CatApiResponse, CatApiSuccessV1 } from "@/types/scan";
 
 type Phase = "idle" | "uploading" | "analyzing" | "success" | "fail";
 
 type Props = {
     phase?: Phase;
     errorMsg?: string;
-};
-
-type Result = {
-    ok: boolean;
-    label?: "CAT" | "NON-CAT";
-    cat_prob?: number;
-    threshold?: number;
-    request_id?: string;
-    topk?: Array<{ label: string; prob: number }>;
-    meta?: Record<string, any>;
-    code?: string;
-    message?: string;
 };
 
 export default function MediaPreview({ phase = "idle", errorMsg = "" }: Props) {
@@ -32,7 +21,7 @@ export default function MediaPreview({ phase = "idle", errorMsg = "" }: Props) {
         createdAt: string;
         source: string;
     }>(null);
-    const [result, setResult] = useState<Result | null>(null);
+    const [result, setResult] = useState<CatApiResponse | null>(null);
 
     useEffect(() => {
         try {
@@ -47,27 +36,29 @@ export default function MediaPreview({ phase = "idle", errorMsg = "" }: Props) {
         }
     }, [phase]); // refresh tampilan saat status berubah
 
+    const okRes = (result && (result as any).ok === true) ? (result as CatApiSuccessV1) : null;
+
     const verdict = useMemo(() => {
         if (phase === "uploading" || phase === "analyzing") return "loading" as const;
         if (phase === "fail") return "fail" as const;
-        if (phase === "success") return result?.label === "CAT" ? "cat" : "noncat";
+        if (okRes) {
+            // tampilkan hijau jika keduanya valid (atau can_proceed true), merah kalau NON-CAT
+            if (okRes.recognize?.label === "NON-CAT") return "noncat" as const;
+            return okRes.can_proceed ? "cat" as const : "noncat" as const;
+        }
         return "idle" as const;
-    }, [phase, result?.label]);
+    }, [phase, okRes]);
 
     const probText = useMemo(() => {
-        const p = result?.cat_prob;
+        const p = okRes?.recognize?.cat_prob;
         return typeof p === "number" ? `p=${p.toFixed(2)}` : "";
-    }, [result?.cat_prob]);
+    }, [okRes?.recognize?.cat_prob]);
 
     function formatBytes(bytes: number) {
         if (!Number.isFinite(bytes) || bytes <= 0) return "–";
         const units = ["B", "KB", "MB", "GB"];
-        let i = 0,
-            val = bytes;
-        while (val >= 1024 && i < units.length - 1) {
-            val /= 1024;
-            i++;
-        }
+        let i = 0, val = bytes;
+        while (val >= 1024 && i < units.length - 1) { val /= 1024; i++; }
         const fixed = i === 0 ? 0 : val < 10 ? 2 : 1;
         return `${val.toFixed(fixed)} ${units[i]}`;
     }
@@ -85,8 +76,8 @@ export default function MediaPreview({ phase = "idle", errorMsg = "" }: Props) {
             {/* Overlay verdict bulat */}
             <div
                 className="
-        h-20 w-20 absolute left-1/2 -translate-x-1/2 -translate-y-1/2
-        rounded-full z-20 shrink-0 grow-0 border-8 border-white grid place-items-center
+          h-20 w-20 absolute left-1/2 -translate-x-1/2 -translate-y-1/2
+          rounded-full z-20 shrink-0 grow-0 border-8 border-white grid place-items-center
         "
                 style={{
                     top: "0",
@@ -125,7 +116,7 @@ export default function MediaPreview({ phase = "idle", errorMsg = "" }: Props) {
                     {/* Tombol ulangi */}
                     <button
                         type="button"
-                        className={`absolute bottom-3 right-3 grid h-10 w-10 place-items-center rounded-lg shadow-md ${isAnalyzing ? "bg-black/20 cursor-not-allowed" : "bg-black/50"
+                        className={`absolute bottom-3 right-3 grid h-10 w-10 place-items-center rounded-lg shadow-md ${isAnalyzing ? "bg.black/20 cursor-not-allowed" : "bg-black/50"
                             }`}
                         title={isAnalyzing ? "Sedang menganalisis…" : "Ulangi"}
                         onClick={() => {
@@ -135,9 +126,7 @@ export default function MediaPreview({ phase = "idle", errorMsg = "" }: Props) {
                                 sessionStorage.removeItem("scan:pendingMeta");
                                 sessionStorage.removeItem("scan:result");
                                 sessionStorage.removeItem("scan:rid");
-                            } catch {
-                                /* ignore */
-                            }
+                            } catch { /* ignore */ }
                             window.history.back();
                         }}
                     >
@@ -153,42 +142,39 @@ export default function MediaPreview({ phase = "idle", errorMsg = "" }: Props) {
                 {/* Badge meta (ukuran/format) */}
                 {meta && (
                     <div className="px-3 py-1 mt-2 mx-auto w-fit rounded-full bg-white text-slate-700 text-xs shadow">
-                        {`${formatBytes(meta.sizeBytes)} • JPEG q${meta.quality.toFixed(
-                            1
-                        )} • ${meta.width}×${meta.height}`}
+                        {`${formatBytes(meta.sizeBytes)} • JPEG q${meta.quality.toFixed(1)} • ${meta.width}×${meta.height}`}
                     </div>
                 )}
             </div>
 
             {/* Teks ringkas di bawah preview */}
             <div className="mt-3 flex w-full justify-center">
-                {verdict === "loading" && (
+                {phase === "uploading" || phase === "analyzing" ? (
                     <div className="flex items-center gap-2 rounded-full bg-white/90 px-3 py-1 text-sm text-slate-700 shadow">
                         <div className="h-3 w-3 rounded-full border-2 border-slate-500 border-t-transparent animate-spin" />
                         <span>Menganalisis…</span>
                     </div>
-                )}
+                ) : null}
 
-                {verdict === "cat" && (
-                    <div className="flex items-center gap-2 rounded-full bg-white px-3 py-1 text-sm text-green-700 shadow">
-                        <Check className="h-4 w-4" />
+                {okRes && (
+                    <div
+                        className={`flex items-center gap-2 rounded-full px-3 py-1 text-sm shadow
+              ${okRes.recognize?.label === "CAT" && okRes.can_proceed ? "bg-white text-green-700" : "bg-white text-red-700"}`}
+                    >
+                        {okRes.recognize?.label === "CAT" && okRes.can_proceed ? (
+                            <Check className="h-4 w-4" />
+                        ) : (
+                            <X className="h-4 w-4" />
+                        )}
                         <span>
-                            Gambar adalah <b>kucing</b>
+                            {okRes.message}
+                            {okRes.recognize?.label ? ` • label=${okRes.recognize.label}` : ""}
                             {probText ? ` • ${probText}` : ""}
                         </span>
                     </div>
                 )}
 
-                {verdict === "noncat" && (
-                    <div className="flex items-center gap-2 rounded-full bg-white px-3 py-1 text-sm text-red-700 shadow">
-                        <X className="h-4 w-4" />
-                        <span>
-                            <b>Bukan</b> kucing{probText ? ` • ${probText}` : ""}
-                        </span>
-                    </div>
-                )}
-
-                {verdict === "fail" && (
+                {!okRes && phase === "fail" && (
                     <div className="flex items-center gap-2 rounded-full bg-white px-3 py-1 text-sm text-red-700 shadow">
                         <AlertTriangle className="h-4 w-4" />
                         <span>
@@ -208,6 +194,49 @@ export default function MediaPreview({ phase = "idle", errorMsg = "" }: Props) {
             {/* RID mini (debug) */}
             {requestId && (
                 <div className="mt-1 text-[10px] text-white/80 text-center">rid: {requestId}</div>
+            )}
+
+            {/* === SECTION: RINGKASAN PAYLOAD === */}
+            {okRes && (
+                <div className="mt-4 w-full max-w-xl mx-auto space-y-3">
+                    {/* ROI Preview */}
+                    {okRes.faces?.roi_url && (
+                        <div className="bg-white rounded-xl shadow p-3">
+                            <div className="flex items-center gap-2 mb-2 text-slate-700">
+                                <ImageIcon className="h-4 w-4" />
+                                <span className="font-medium">ROI (Wajah Terpilih)</span>
+                            </div>
+                            <img
+                                src={okRes.faces.roi_url}
+                                alt="ROI"
+                                className="w-full rounded-md border"
+                            />
+                        </div>
+                    )}
+
+                    {/* Faces summary */}
+                    <div className="bg-white rounded-xl shadow p-3">
+                        <div className="flex items-center gap-2 mb-2 text-slate-700">
+                            <Info className="h-4 w-4" />
+                            <span className="font-medium">Ringkasan Deteksi Wajah</span>
+                        </div>
+                        <div className="text-sm text-slate-700 space-y-1">
+                            <div><b>faces_count:</b> {okRes.faces?.faces_count ?? 0}</div>
+                            <div><b>chosen_conf:</b> {typeof okRes.faces?.chosen_conf === "number" ? okRes.faces?.chosen_conf.toFixed(3) : "-"}</div>
+                            <div><b>kept_confs ≥ min:</b> {Array.isArray(okRes.faces?.kept_confs_ge_min) ? okRes.faces!.kept_confs_ge_min.map(v => v.toFixed(3)).join(", ") : "-"}</div>
+                            <div><b>note:</b> {okRes.faces?.note ?? "-"}</div>
+                            {okRes.faces?.box ? (
+                                <div><b>box:</b> [{okRes.faces.box.join(", ")}]</div>
+                            ) : null}
+                        </div>
+                    </div>
+
+                    {/* Raw JSON (folded) */}
+                    <details className="bg-white rounded-xl shadow p-3">
+                        <summary className="cursor-pointer select-none text-sm text-slate-700">Payload mentah (JSON)</summary>
+                        <pre className="mt-2 text-xs overflow-auto">{JSON.stringify(okRes, null, 2)}</pre>
+                    </details>
+                </div>
             )}
 
             {/* indicator kecil di bawah (tetap) */}
