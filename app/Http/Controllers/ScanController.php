@@ -180,4 +180,9 @@ class ScanController extends Controller
     {
         return Inertia::render('scan/scan-results');
     }
+
+    public function try()
+    {
+        return Inertia::render('scan/scan-try');
+    }
 }
