@@ -1,36 +1,47 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+
+/*=============== COMPONENT ===============*/
 import MediaPreview from "@/components/scan/details/media-preview";
 import BottomForm from "@/components/scan/details/bottom-form";
-import type { Coords, GeoStatus, Address } from "@/types/geo";
-import { reverseGeocode } from "@/lib/helper/reverse-geocode";
 import SideForm from "@/components/scan/details/side-form";
-import { useRoute } from "ziggy-js";
+
+/*=============== UTILS AND TYPES ===============*/
 import { useIsMobile } from "@/hooks/use-mobile";
-import {
-    dataURLtoBlob,
-    getCsrfToken,
-    postWithRetry,
-    humanizeError,
-} from "@/lib/helper/upload";
+import { dataURLtoBlob, getCsrfToken, postWithRetry, humanizeError } from "@/lib/helper/upload";
+import { reverseGeocode } from "@/lib/helper/reverse-geocode";
+import type { Coords, GeoStatus, Address } from "@/types/geo";
 import type { CatApiResponse } from "@/types/scan";
 
+/*=============== THIRD PARTY ===============*/
+import { useRoute } from "ziggy-js";
+
+/*=============== GLOBAL STATE ===============*/
 type Phase = "idle" | "uploading" | "analyzing" | "success" | "fail";
 
+/**
+ * ScanDetails
+ *
+ * Main page for image analysis prevention.
+ * Handles image upload, Flask API communication, and location data.
+ */
 export default function ScanDetails() {
     const route = useRoute();
     const isMobile = useIsMobile();
-    const [open, setOpen] = useState(true);
 
+    const [open, setOpen] = useState(true);
     const [geoStatus, setGeoStatus] = useState<GeoStatus>("idle");
     const [coords, setCoords] = useState<Coords | null>(null);
     const [addr, setAddr] = useState<Address | null>(null);
     const [updatedAt, setUpdatedAt] = useState<Date | null>(null);
-
     const [phase, setPhase] = useState<Phase>("idle");
     const [errorMsg, setErrorMsg] = useState<string>("");
 
-    // ===== GEO (tetap) =====
+    /**
+     * Retrieve user's current geolocation and resolve it into an address.
+     * Updates coordinates, address, status, and timestamp.
+     * Sets geoStatus to "error" if retrieval fails.
+     */
     const askLocation = async () => {
         setGeoStatus("locating");
         setAddr(null);
@@ -42,10 +53,13 @@ export default function ScanDetails() {
                     maximumAge: 0,
                 });
             });
+
             const c = { lat: pos.coords.latitude, lon: pos.coords.longitude };
             setCoords(c);
+
             const a = await reverseGeocode(c);
             setAddr(a);
+
             setGeoStatus("ready");
             setUpdatedAt(new Date());
         } catch (e) {
@@ -54,6 +68,9 @@ export default function ScanDetails() {
         }
     };
 
+    /**
+     * Reset geolocation data and status to initial state.
+     */
     const clearLocation = () => {
         setCoords(null);
         setAddr(null);
@@ -61,37 +78,43 @@ export default function ScanDetails() {
         setGeoStatus("idle");
     };
 
+    /** Auto-fetch location when the component mounts. */
     useEffect(() => {
         askLocation();
     }, []);
 
-    // ===== GUARD sekali saat mount: boleh lanjut kalau ada pendingImage ATAU sudah ada result =====
+    /**
+     * Mount guard:
+     * Ensures this page is accessed only when a pending image or result exists.
+     * Redirects to the capture route if none found.
+     */
     useEffect(() => {
         const hasImg = !!sessionStorage.getItem("scan:pendingImage");
         const hasResult = !!sessionStorage.getItem("scan:result");
         if (!hasImg && !hasResult) {
             window.location.href = route("scan.capture");
         }
-        // sengaja [] biar tidak re-run
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [route]);
 
-    // ===== Freeze URL & timeout supaya dependensi stabil =====
+    /**
+     * Freeze analyze URL and timeout value to keep dependency references stable.
+     */
     const analyzeUrl = useMemo(() => route("scan.analyze"), [route]);
     const timeoutMs = useMemo(
         () => Number((import.meta as any).env?.VITE_SCAN_TIMEOUT_MS ?? 5000),
         []
     );
 
-    // ===== Kirim gambar (dipakai auto-run & tombol retry) =====
+    /**
+     * Perform image analysis once.
+     * Used for both auto-run (on mount) and manual retry.
+     * Handles file size check, API request, and result caching.
+     */
     const analyzeOnce = useCallback(async () => {
         try {
             const dataUrl = sessionStorage.getItem("scan:pendingImage");
             const meta = sessionStorage.getItem("scan:pendingMeta");
-            if (!dataUrl || !meta) {
-                // Tidak auto-redirect di sini; guard awal sudah handle
-                return;
-            }
+            if (!dataUrl || !meta) return;
 
             setPhase("uploading");
             const blob = dataURLtoBlob(dataUrl);
@@ -129,15 +152,14 @@ export default function ScanDetails() {
                 return;
             }
 
-            // success
             setPhase("success");
             sessionStorage.setItem("scan:result", JSON.stringify(data));
+
             const rid = res.headers.get("X-Request-ID");
             if (rid) sessionStorage.setItem("scan:rid", rid);
 
-            // ⚠️ TIDAK menghapus pendingImage/pendingMeta di sini — biar halaman diem.
         } catch (e: any) {
-            console.error('analyzeOnce error:', e);
+            console.error("analyzeOnce error:", e);
             setPhase("fail");
             setErrorMsg(
                 e?.name === "AbortError"
@@ -145,10 +167,11 @@ export default function ScanDetails() {
                     : e?.message ?? "Terjadi kesalahan."
             );
         }
-
     }, [analyzeUrl, timeoutMs]);
 
-    // ===== Auto-run HANYA SEKALI per mount walau re-render berkali-kali =====
+    /**
+     * Auto-run analyzeOnce once per mount (prevent multiple submissions on re-render).
+     */
     const autoSentRef = useRef(false);
     useEffect(() => {
         if (autoSentRef.current) return;
@@ -159,7 +182,10 @@ export default function ScanDetails() {
         }
     }, [analyzeOnce]);
 
-    // ===== Listener "scan:retry" =====
+    /**
+     * Listen for custom "scan:retry" events.
+     * Triggers analyzeOnce when retry button is clicked elsewhere.
+     */
     useEffect(() => {
         const handler = () => analyzeOnce();
         window.addEventListener("scan:retry", handler);

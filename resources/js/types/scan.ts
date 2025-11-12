@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
 export type RecognizeBlock = {
     label: 'CAT' | 'NON-CAT';
     cat_prob: number;
@@ -17,6 +16,7 @@ export type FacesBlock = {
     kept_confs_ge_min?: number[];
     meta?: Record<string, any>;
     roi_url?: string;
+    preview_url?: string; // <— NEW: preview bounding box image
     roi_upload_error?: string;
     error?: string; // kalau face detector error
 };
