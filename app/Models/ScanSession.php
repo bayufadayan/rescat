@@ -8,37 +8,44 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use App\Enums\ScanStatus;
 use App\Enums\CheckupType;
+use Illuminate\Database\Eloquent\Builder;
 
 class ScanSession extends Model
 {
     use HasFactory, SoftDeletes, HasUlids;
 
     protected $table = 'scan_sessions';
-
-    protected $primaryKey = 'id'; // ✅ pakai id
+    protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'string';
 
     protected $fillable = [
         'user_id',
         'cat_id',
-        'scan_type',     // contoh: 'tail', 'body'
-        'checkup_type',  // 'quick' | 'detail'
-        'status',        // 'processing' | 'done'
+        'scan_type',      
+        'checkup_type',   
+        'status',         
+        'latitude',       
+        'longitude',      
+        'location',       
+        'informer',       
+        'notes',          
     ];
 
     protected $casts = [
         'checkup_type' => CheckupType::class,
         'status'       => ScanStatus::class,
+        'latitude'     => 'float',
+        'longitude'    => 'float',
     ];
 
-    // ✅ Route binding pakai kolom "id" (karena ULID sudah otomatis di kolom id)
+    /** Route binding pakai kolom "id" */
     public function getRouteKeyName(): string
     {
         return 'id';
     }
 
-    // RELATIONS
+    // ================= RELATIONS =================
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -59,11 +66,10 @@ class ScanSession extends Model
         return $this->hasOne(ScanResult::class, 'scan_id', 'id');
     }
 
-    // SOFT DELETE CASCADE (agar child ikut terhapus)
+    // ================= SOFT DELETE CASCADE =================
     protected static function booted()
     {
         static::deleting(function (self $session) {
-            // soft delete children
             $session->images()->get()->each->delete();
 
             if ($session->result) {
@@ -71,7 +77,6 @@ class ScanSession extends Model
                 $session->result->delete();
             }
 
-            // force delete
             if (method_exists($session, 'isForceDeleting') && $session->isForceDeleting()) {
                 $session->images()->withTrashed()->get()->each->forceDelete();
                 if ($session->result) {
@@ -82,7 +87,7 @@ class ScanSession extends Model
         });
     }
 
-    // SCOPES
+    // ================= SCOPES =================
     public function scopeProcessing($query)
     {
         return $query->where('status', ScanStatus::Processing);
