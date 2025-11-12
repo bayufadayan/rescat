@@ -1,7 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react"
 import { Shield } from "lucide-react"
 import LocationCard from "./location-card"
 import type { GeoStatus, Coords, Address } from "@/types/geo"
+import { buildSessionPayload } from "@/lib/helper/session-payload";
+import { submitScanSession } from "@/lib/helper/submit-session";
+import { useRoute } from "ziggy-js";
 
 type Props = {
     status: GeoStatus
@@ -16,6 +20,7 @@ const SideForm: React.FC<Props> = ({ status, coords, address, updatedAt, refresh
     const [anonymous, setAnonymous] = useState(true)
     const [name, setName] = useState("")
     const [notes, setNotes] = useState("")
+    const route = useRoute();
 
     const copyAddress = async () => {
         const text = address?.display ?? (coords ? `${coords.lat}, ${coords.lon}` : "—")
@@ -82,15 +87,37 @@ const SideForm: React.FC<Props> = ({ status, coords, address, updatedAt, refresh
                 <button
                     type="button"
                     className="w-full rounded-2xl bg-sky-600 py-3.5 text-white shadow-lg shadow-sky-600/30 active:scale-[0.98]"
-                    onClick={() => {
-                        console.log({
-                            anonymous,
-                            name: anonymous ? "Anonim" : name || "-",
-                            notes,
-                            coords,
-                            address,
-                        })
-                        alert("Form dikirim (cek console) ✅")
+                    onClick={async () => {
+                        try {
+                            const payload = buildSessionPayload(address, coords, {
+                                informer: (anonymous ? "Anonim" : (name || "Anonim")),
+                                notes
+                            });
+                            const { data } = await submitScanSession(route("scan.sessions.store"), payload);
+
+                            [
+                                "scan:original",
+                                "scan:meta",
+                                "scan:bounding-box",
+                                "scan:roi",
+                                "scan:result",
+                                "scan:rid",
+                                "scan:session_id",
+                                "scan:session_image_id"
+                            ].forEach(key => localStorage.removeItem(key));
+
+                            [
+                                "scan:result",
+                                "scan:rid"
+                            ].forEach(key => sessionStorage.removeItem(key));
+
+                            localStorage.setItem("scan:session_id", data.session_id);
+                            localStorage.setItem("scan:session_image_id", data.image_id);
+
+                            window.location.href = route("scan.process");
+                        } catch (e: any) {
+                            alert(e?.message || "Gagal membuat sesi.");
+                        }
                     }}
                 >
                     Periksa Sekarang

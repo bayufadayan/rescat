@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useRef, useState, UIEvent } from "react";
 import * as Drawer from "vaul";
 import { Shield } from "lucide-react";
@@ -5,6 +6,8 @@ import LocationCard from "./location-card";
 import type { GeoStatus, Coords, Address } from "@/types/geo";
 import { useRoute } from "ziggy-js";
 import InfoNotice from "./info-notice";
+import { buildSessionPayload } from "@/lib/helper/session-payload";
+import { submitScanSession } from "@/lib/helper/submit-session";
 
 type Props = {
     open: boolean;
@@ -97,7 +100,7 @@ const BottomForm: React.FC<Props> = ({
                             if ((activeSnap ?? snapPoints[0]) < maxSnap) handleSetActiveSnapPoint(maxSnap);
                         }}
                     >
-                        <div className="mx-auto mb-2 h-1 w-20 rounded-full bg-slate-200" hidden/>
+                        <div className="mx-auto mb-2 h-1 w-20 rounded-full bg-slate-200" hidden />
 
                         <h3 className="text-center text-[15px] font-semibold text-slate-800">
                             Tolong lengkapi informasi di bawah ini
@@ -159,12 +162,43 @@ const BottomForm: React.FC<Props> = ({
                         <button
                             type="button"
                             className="w-full rounded-2xl bg-sky-600 py-3.5 text-white shadow-lg shadow-sky-600/30 active:scale-[0.98]"
-                            onClick={() => {
-                                window.location.href = route("scan.process");
+                            onClick={async () => {
+                                try {
+                                    const payload = buildSessionPayload(address, coords, {
+                                        informer: (anonymous ? "Anonim" : (name || "Anonim")),
+                                        notes
+                                    });
+                                    const { data } = await submitScanSession(route("scan.sessions.store"), payload);
+
+                                    [
+                                        "scan:original",
+                                        "scan:meta",
+                                        "scan:bounding-box",
+                                        "scan:roi",
+                                        "scan:result",
+                                        "scan:rid",
+                                        "scan:session_id",
+                                        "scan:session_image_id"
+                                    ].forEach(key => localStorage.removeItem(key));
+
+                                    [
+                                        "scan:result",
+                                        "scan:rid"
+                                    ].forEach(key => sessionStorage.removeItem(key));
+
+                                    localStorage.setItem("scan:session_id", data.session_id);
+                                    localStorage.setItem("scan:session_image_id", data.image_id);
+
+                                    // lanjut
+                                    window.location.href = route("scan.process");
+                                } catch (e: any) {
+                                    alert(e?.message || "Gagal membuat sesi.");
+                                }
                             }}
                         >
                             Periksa Sekarang
                         </button>
+
                     </div>
                 </Drawer.Content>
             </Drawer.Portal>

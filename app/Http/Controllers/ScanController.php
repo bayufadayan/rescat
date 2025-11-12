@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ScanImage;
+use App\Models\ScanSession;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -180,6 +183,68 @@ class ScanController extends Controller
     public function details()
     {
         return Inertia::render('scan/scan-details');
+    }
+
+    public function storeSession(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'scan_type'        => 'required|string',
+            'checkup_type'     => 'required|in:quick,detail',
+            'latitude'         => 'nullable|numeric',
+            'longitude'        => 'nullable|numeric',
+            'location'         => 'nullable|string',
+            'informer'         => 'nullable|string',
+            'notes'            => 'nullable|string',
+            'cat_id'           => 'nullable|string',
+
+            // images.* dari localStorage
+            'images.img_original_id'        => 'nullable|string',
+            'images.img_original_url'       => 'nullable|url',
+            'images.img_bounding_box_id'    => 'nullable|string',
+            'images.img_bounding_box_url'   => 'nullable|url',
+            'images.img_roi_id'             => 'nullable|string',
+            'images.img_roi_url'            => 'nullable|url',
+            // remove_bg opsional (kalau nanti ada)
+            'images.img_remove_bg_id'       => 'nullable|string',
+            'images.img_remove_bg_url'      => 'nullable|url',
+        ]);
+
+        // user_id & cat_id boleh null (sudah nullable di migration)
+        $session = ScanSession::create([
+            'id'           => (string) \Illuminate\Support\Str::ulid(),
+            'user_id'      => Auth::id(),                // null kalau guest
+            'cat_id'       => $validated['cat_id'] ?? null,
+            'scan_type'    => $validated['scan_type'],
+            'checkup_type' => $validated['checkup_type'],
+            'status'       => 'processing',              // biarkan string; akan di-cast ke enum
+            'latitude'     => $validated['latitude'] ?? null,
+            'longitude'    => $validated['longitude'] ?? null,
+            'location'     => $validated['location'] ?? null,
+            'informer'     => $validated['informer'] ?? null,
+            'notes'        => $validated['notes'] ?? null,
+        ]);
+
+        $imgPayload = $validated['images'] ?? [];
+
+        $img = ScanImage::create([
+            'scan_id'                 => $session->id,
+            'img_original_id'         => $imgPayload['img_original_id']       ?? null,
+            'img_original_url'        => $imgPayload['img_original_url']      ?? null,
+            'img_bounding_box_id'     => $imgPayload['img_bounding_box_id']   ?? null,
+            'img_bounding_box_url'    => $imgPayload['img_bounding_box_url']  ?? null,
+            'img_roi_id'              => $imgPayload['img_roi_id']            ?? null,
+            'img_roi_url'             => $imgPayload['img_roi_url']           ?? null,
+            'img_remove_bg_id'        => $imgPayload['img_remove_bg_id']      ?? null,
+            'img_remove_bg_url'       => $imgPayload['img_remove_bg_url']     ?? null,
+        ]);
+
+        return response()->json([
+            'ok'   => true,
+            'data' => [
+                'session_id' => $session->id,
+                'image_id'   => $img->id,
+            ],
+        ], 201);
     }
 
     public function process()
