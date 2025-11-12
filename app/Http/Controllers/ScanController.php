@@ -114,28 +114,31 @@ class ScanController extends Controller
     private function mapFlaskToCatApi(array $src, string $rid): array
     {
         $faces = $src['faces'] ?? null;
-        $facesCount = is_array($faces) ? ($faces['faces_count'] ?? null) : null;
-        $roiUrl = is_array($faces) ? ($faces['roi']['url'] ?? null) : null;
-        $previewUrl = is_array($faces) ? ($faces['preview']['url'] ?? null) : null; // ← NEW
 
+        // baca nested object (baru) + fallback lama
+        $roiId = is_array($faces) ? ($faces['roi']['id'] ?? null) : null;
+        $roiUrl = is_array($faces) ? ($faces['roi']['url'] ?? ($faces['roi_url'] ?? null)) : null;
+
+        $previewId = is_array($faces) ? ($faces['preview']['id'] ?? null) : null;
+        $previewUrl = is_array($faces) ? ($faces['preview']['url'] ?? ($faces['preview_url'] ?? null)) : null;
+
+        $facesCount = is_array($faces) ? ($faces['faces_count'] ?? null) : null;
         $canProceed = ($facesCount === 1);
 
-        if (($src['label'] ?? null) === 'NON-CAT') {
-            $message = 'Bukan kucing.';
-        } elseif ($facesCount === 1) {
-            $message = 'Terdeteksi tepat 1 wajah kucing.';
-        } elseif (is_numeric($facesCount) && $facesCount > 1) {
-            $message = 'Terdeteksi lebih dari satu wajah.';
-        } else {
-            $message = 'Tidak ada wajah kucing terdeteksi.';
-        }
+        $message = ($src['label'] ?? null) === 'NON-CAT'
+            ? 'Bukan kucing.'
+            : ($facesCount === 1
+                ? 'Terdeteksi tepat 1 wajah kucing.'
+                : (is_numeric($facesCount) && $facesCount > 1
+                    ? 'Terdeteksi lebih dari satu wajah.'
+                    : 'Tidak ada wajah kucing terdeteksi.'));
 
         return [
             'ok' => true,
             'request_id' => $src['request_id'] ?? $rid,
             'can_proceed' => $canProceed,
             'message' => $message,
-            'image_url' => $roiUrl,
+            'image_url' => $roiUrl, // tetap
 
             'recognize' => [
                 'label' => $src['label'] ?? 'NON-CAT',
@@ -153,9 +156,18 @@ class ScanController extends Controller
                 'note' => $faces['note'] ?? null,
                 'kept_confs_ge_min' => $faces['kept_confs_ge_min'] ?? [],
                 'meta' => $faces['meta'] ?? [],
+
+                // NEW (flat fields untuk FE)
+                'preview_id' => $previewId,
+                'preview_url' => $previewUrl,
+                'roi_id' => $roiId,
                 'roi_url' => $roiUrl,
-                'preview_url' => $previewUrl, // ← NEW
-                'roi_upload_error' => $faces['roi_upload_error'] ?? null,
+
+                // nested (tetap ada kalau perlu)
+                'preview' => $faces['preview'] ?? null,
+                'roi' => $faces['roi'] ?? null,
+
+                'roi_upload_error' => $faces['roi_upload_error'] ?? ($faces['roi_error'] ?? null),
                 'error' => $faces['error'] ?? null,
             ] : null,
 
@@ -164,7 +176,6 @@ class ScanController extends Controller
             ],
         ];
     }
-
 
     public function details()
     {

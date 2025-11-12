@@ -162,6 +162,22 @@ export default function ScanDetails() {
             setPhase("success");
             sessionStorage.setItem("scan:result", JSON.stringify(data));
 
+            try {
+                const faces = (data as any)?.faces || {};
+
+                const bbId = faces.preview_id ?? faces.preview?.id ?? null;
+                const bbUrl = faces.preview_url ?? faces.preview?.url ?? null;
+                if (bbId || bbUrl) {
+                    localStorage.setItem("scan:bounding-box", JSON.stringify({ id: bbId, url: bbUrl }));
+                }
+
+                const roiId = faces.roi_id ?? faces.roi?.id ?? null;
+                const roiUrl = faces.roi_url ?? faces.roi?.url ?? null;
+                if (roiId || roiUrl) {
+                    localStorage.setItem("scan:roi", JSON.stringify({ id: roiId, url: roiUrl }));
+                }
+            } catch { /* noop */ }
+
             const rid = res.headers.get("X-Request-ID");
             if (rid) sessionStorage.setItem("scan:rid", rid);
         } catch (e: any) {
