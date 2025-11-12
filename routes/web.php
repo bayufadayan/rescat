@@ -21,7 +21,7 @@ Route::prefix('scan')->group(function () {
     Route::get('/details', [ScanController::class, 'details'])->name('scan.details');
     Route::get('/process', [ScanController::class, 'process'])->name('scan.process');
     Route::get('/results', [ScanController::class, 'results'])->name('scan.results');
-    Route::get('/try', [ScanController::class, 'try'])->name('scan.try');
+    Route::get('/removebg', [ScanController::class, 'removebg'])->name('scan.removebg');
 });
 Route::prefix('petcares')->group(function () {
     Route::get('/', function () {

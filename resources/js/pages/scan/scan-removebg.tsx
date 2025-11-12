@@ -48,7 +48,7 @@ const GridScanEffect: React.FC<{ imageUrl: string; onComplete: () => void }> = (
 };
 
 /* ---------------- Main Component ---------------- */
-export default function ScanTry() {
+export default function ScanRemoveBG() {
     const [file, setFile] = useState<DroppedFile | null>(null);
     const [resultUrl, setResultUrl] = useState<string | null>(null);
     const [resultBlob, setResultBlob] = useState<Blob | null>(null);
@@ -112,7 +112,7 @@ export default function ScanTry() {
             const outUrl = URL.createObjectURL(blob);
             setResultBlob(blob);
             setResultUrl(outUrl);
-            setState("grid"); // mulai grid animation
+            setState("grid");
         } catch (err) {
             console.error(err);
             setErrorMsg("Gagal menghapus background. Coba ganti gambar / reload halaman.");

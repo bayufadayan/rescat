@@ -181,8 +181,8 @@ class ScanController extends Controller
         return Inertia::render('scan/scan-results');
     }
 
-    public function try()
+    public function removebg()
     {
-        return Inertia::render('scan/scan-try');
+        return Inertia::render('scan/scan-removebg');
     }
 }
