@@ -11,12 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('scan_images', function (Blueprint $table) {
+        Schema::create('scan_session_images', function (Blueprint $table) {
             $table->ulid('id')->primary();
             $table->foreignUlid('scan_id')->constrained('scan_sessions')->onDelete('cascade');
-            $table->string('type'); // e.g., 'face', 'ear', 'mouth', etc.
-            $table->string('original_url');
-            $table->string('processed_url')->nullable();
+
+            $table->string('img_original_id')->nullable();
+            $table->string('img_original_url')->nullable();
+            $table->string('img_bounding_box_id')->nullable();
+            $table->string('img_bounding_box_url')->nullable();
+            $table->string('img_roi_id')->nullable();
+            $table->string('img_roi_url')->nullable();
+            $table->string('img_remove_bg_id')->nullable();
+            $table->string('img_remove_bg_url')->nullable();
+
             $table->softDeletes();
             $table->timestamps();
         });

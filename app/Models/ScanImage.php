@@ -11,13 +11,18 @@ class ScanImage extends Model
 {
     use HasFactory, SoftDeletes, HasUlids;
 
-    protected $table = 'scan_images';
+    protected $table = 'scan_session_images';
 
     protected $fillable = [
-        'scan_id',        // FK ke scan_sessions.ulid
-        'type',           // 'ear' | 'mouth' | 'nose' | ...
-        'original_url',
-        'processed_url',
+        'scan_id',
+        'img_original_id',
+        'img_original_url',
+        'img_bounding_box_id',
+        'img_bounding_box_url',
+        'img_roi_id',
+        'img_roi_url',
+        'img_remove_bg_id',
+        'img_remove_bg_url',
     ];
 
     protected $casts = [
