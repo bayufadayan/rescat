@@ -1,11 +1,53 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Head } from "@inertiajs/react";
+import { motion } from "framer-motion";
 import { removeBackground } from "@imgly/background-removal";
 
 type DroppedFile = File & { preview?: string };
+type ProcessState = "idle" | "processing" | "grid" | "done" | "error";
 
-type ProcessState = "idle" | "processing" | "done" | "error";
+/* ---------------- Grid Scan Effect ---------------- */
+const GridScanEffect: React.FC<{ imageUrl: string; onComplete: () => void }> = ({
+    imageUrl,
+    onComplete,
+}) => {
+    useEffect(() => {
+        const timer = setTimeout(() => onComplete(), 2000);
+        return () => clearTimeout(timer);
+    }, [onComplete]);
 
+    return (
+        <motion.div
+            className="relative grid grid-cols-8 grid-rows-8 gap-0.5 w-full h-full overflow-hidden rounded-xl border bg-white"
+            style={{ aspectRatio: "1 / 1" }}
+        >
+            {Array.from({ length: 64 }).map((_, i) => (
+                <motion.div
+                    key={i}
+                    initial={{ opacity: 0, scale: 0 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{
+                        delay: i * 0.02,
+                        duration: 0.3,
+                        ease: "easeOut",
+                    }}
+                    className="bg-cyan-500/20 backdrop-blur-sm overflow-hidden"
+                >
+                    <img
+                        src={imageUrl}
+                        className="w-full h-full object-cover"
+                        style={{
+                            objectPosition: `${(i % 8) * 12.5}% ${Math.floor(i / 8) * 12.5}%`,
+                        }}
+                        alt="grid-tile"
+                    />
+                </motion.div>
+            ))}
+        </motion.div>
+    );
+};
+
+/* ---------------- Main Component ---------------- */
 export default function ScanTry() {
     const [file, setFile] = useState<DroppedFile | null>(null);
     const [resultUrl, setResultUrl] = useState<string | null>(null);
@@ -13,10 +55,8 @@ export default function ScanTry() {
     const [dragOver, setDragOver] = useState(false);
     const [state, setState] = useState<ProcessState>("idle");
     const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
     const inputRef = useRef<HTMLInputElement | null>(null);
 
-    // revoke object URLs on cleanup
     useEffect(() => {
         return () => {
             if (file?.preview) URL.revokeObjectURL(file.preview);
@@ -24,9 +64,7 @@ export default function ScanTry() {
         };
     }, [file?.preview, resultUrl]);
 
-    const openPicker = useCallback(() => {
-        inputRef.current?.click();
-    }, []);
+    const openPicker = useCallback(() => inputRef.current?.click(), []);
 
     const onPick: React.ChangeEventHandler<HTMLInputElement> = (e) => {
         const picked = e.target.files?.[0];
@@ -37,7 +75,6 @@ export default function ScanTry() {
         }
         const preview = URL.createObjectURL(picked);
         const withPreview = Object.assign(picked, { preview });
-        // reset state jika ganti file
         if (resultUrl) URL.revokeObjectURL(resultUrl);
         setResultUrl(null);
         setResultBlob(null);
@@ -69,16 +106,13 @@ export default function ScanTry() {
         if (!file) return;
         setState("processing");
         setErrorMsg(null);
-
-        // gunakan URL object agar efisien dan privacy-friendly
         const tempUrl = file.preview ?? URL.createObjectURL(file);
         try {
-            // Pemanggilan paling aman (lib akan pilih backend terbaik: WebGPU/WebGL/CPU)
             const blob = await removeBackground(tempUrl);
             const outUrl = URL.createObjectURL(blob);
             setResultBlob(blob);
             setResultUrl(outUrl);
-            setState("done");
+            setState("grid"); // mulai grid animation
         } catch (err) {
             console.error(err);
             setErrorMsg("Gagal menghapus background. Coba ganti gambar / reload halaman.");
@@ -87,6 +121,10 @@ export default function ScanTry() {
             if (!file.preview) URL.revokeObjectURL(tempUrl);
         }
     }, [file]);
+
+    const handleGridComplete = useCallback(() => {
+        setState("done");
+    }, []);
 
     const resetAll = useCallback(() => {
         if (file?.preview) URL.revokeObjectURL(file.preview);
@@ -98,7 +136,10 @@ export default function ScanTry() {
         setErrorMsg(null);
     }, [file?.preview, resultUrl]);
 
-    const canProcess = useMemo(() => !!file && state !== "processing", [file, state]);
+    const canProcess = useMemo(
+        () => !!file && state !== "processing" && state !== "grid",
+        [file, state]
+    );
 
     const downloadResult = useCallback(() => {
         if (!resultBlob) return;
@@ -109,7 +150,6 @@ export default function ScanTry() {
         document.body.appendChild(a);
         a.click();
         a.remove();
-        // jangan revoke langsung di sini kalau url dipakai oleh <img> juga
     }, [resultBlob, resultUrl]);
 
     const copyToClipboard = useCallback(async () => {
@@ -129,7 +169,7 @@ export default function ScanTry() {
             <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-6 py-10">
                 <div className="w-full max-w-3xl bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
                     <h1 className="text-2xl font-semibold text-gray-800 text-center mb-6">
-                        🖼️ Hapus Background Gambar (Client-Side)
+                        🖼️ Hapus Background + Grid Scan Effect
                     </h1>
 
                     {!file ? (
@@ -143,10 +183,11 @@ export default function ScanTry() {
                             onClick={openPicker}
                             className={[
                                 "border-2 border-dashed rounded-xl p-10 text-center cursor-pointer transition-all",
-                                dragOver ? "border-blue-400 bg-blue-50" : "border-gray-300 bg-gray-100 hover:bg-gray-200",
+                                dragOver
+                                    ? "border-blue-400 bg-blue-50"
+                                    : "border-gray-300 bg-gray-100 hover:bg-gray-200",
                             ].join(" ")}
                             role="button"
-                            aria-label="Unggah gambar"
                         >
                             <input
                                 ref={inputRef}
@@ -158,7 +199,9 @@ export default function ScanTry() {
                             <p className="text-gray-600">
                                 <span className="font-medium text-blue-500">Seret/Drop</span> atau klik untuk pilih gambar
                             </p>
-                            <p className="text-xs text-gray-500 mt-2">Semua proses berjalan di browser. Tidak upload ke server.</p>
+                            <p className="text-xs text-gray-500 mt-2">
+                                Semua proses berjalan di browser. Tidak upload ke server.
+                            </p>
                         </div>
                     ) : (
                         <div className="space-y-6">
@@ -174,26 +217,67 @@ export default function ScanTry() {
                                     </div>
                                 </div>
 
-                                <div className="relative">
+                                <div className="relative h-[420px]">
                                     {state === "processing" && (
-                                        <div className="w-full h-[420px] rounded-xl border bg-gray-50 grid place-content-center">
-                                            <div className="animate-pulse text-gray-600">Memproses…</div>
+                                        <div className="w-full h-full grid place-content-center border rounded-xl bg-gray-50 text-gray-600 animate-pulse">
+                                            Menghapus background…
                                         </div>
                                     )}
-                                    {state !== "processing" && resultUrl && (
-                                        <img
-                                            src={resultUrl}
-                                            alt="Result"
-                                            className="w-full rounded-xl shadow-md object-contain max-h-[420px] border bg-white"
-                                        />
+
+                                    {state === "grid" && resultUrl && (
+                                        <GridScanEffect imageUrl={resultUrl} onComplete={handleGridComplete} />
                                     )}
-                                    {state !== "processing" && !resultUrl && (
-                                        <div className="w-full h-[420px] rounded-xl border bg-gray-50 grid place-content-center text-gray-500">
+
+                                    {state === "done" && resultUrl && (
+                                        <div className="relative h-full w-full rounded-xl overflow-hidden">
+                                            <img
+                                                src={resultUrl}
+                                                alt="Result"
+                                                className="w-full h-full object-contain rounded-xl shadow-md border bg-white"
+                                            />
+
+                                            <div
+                                                className="absolute inset-0"
+                                                style={{
+                                                    WebkitMaskImage: `url(${resultUrl})`,
+                                                    maskImage: `url(${resultUrl})`,
+                                                    WebkitMaskSize: "cover",
+                                                    maskSize: "cover",
+                                                    WebkitMaskRepeat: "no-repeat",
+                                                    maskRepeat: "no-repeat",
+                                                    WebkitMaskPosition: "center",
+                                                    maskPosition: "center",
+                                                    background: "linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.25) 50%, rgba(255,255,255,0) 100%)",
+                                                    backgroundSize: "200% 100%",
+                                                    animation: "scan-sweep 2s linear infinite",
+                                                    mixBlendMode: "screen",
+                                                }}
+                                            />
+
+                                            <style>
+                                                {`
+                                                    @keyframes scan-sweep {
+                                                    0% { background-position: -100% 0; }
+                                                    100% { background-position: 100% 0; }
+                                                    }
+                                                `}
+                                            </style>
+                                        </div>
+                                    )}
+
+
+                                    {!resultUrl && state !== "processing" && (
+                                        <div className="w-full h-full grid place-content-center text-gray-500 border rounded-xl bg-gray-50">
                                             Hasil akan muncul di sini
                                         </div>
                                     )}
+
                                     <div className="absolute top-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
-                                        {state === "done" ? "Result" : "Preview"}
+                                        {state === "done"
+                                            ? "Result"
+                                            : state === "grid"
+                                                ? "Scanning…"
+                                                : "Preview"}
                                     </div>
                                 </div>
                             </div>
@@ -252,7 +336,7 @@ export default function ScanTry() {
                 </div>
 
                 <div className="text-xs text-gray-500 mt-4">
-                    Powered by <code>@imgly/background-removal</code>. Proses lokal (browser).
+                    Powered by <code>@imgly/background-removal</code> + Framer Motion Grid Scan.
                 </div>
             </div>
         </>
