@@ -8,7 +8,7 @@ import SideForm from "@/components/scan/details/side-form";
 
 /*=============== UTILS AND TYPES ===============*/
 import { useIsMobile } from "@/hooks/use-mobile";
-import { dataURLtoBlob, getCsrfToken, postWithRetry, humanizeError } from "@/lib/helper/upload";
+import { getCsrfToken, postWithRetry, humanizeError } from "@/lib/helper/upload";
 import { reverseGeocode } from "@/lib/helper/reverse-geocode";
 import type { Coords, GeoStatus, Address } from "@/types/geo";
 import type { CatApiResponse } from "@/types/scan";
@@ -19,12 +19,16 @@ import { useRoute } from "ziggy-js";
 /*=============== GLOBAL STATE ===============*/
 type Phase = "idle" | "uploading" | "analyzing" | "success" | "fail";
 
-/**
- * ScanDetails
- *
- * Main page for image analysis prevention.
- * Handles image upload, Flask API communication, and location data.
- */
+type StoredOriginal = {
+    id: string;
+    url: string;
+    bucket?: string;
+    filename?: string;
+    mime?: string;
+    size?: number;
+    createdAt?: number;
+};
+
 export default function ScanDetails() {
     const route = useRoute();
     const isMobile = useIsMobile();
@@ -37,11 +41,6 @@ export default function ScanDetails() {
     const [phase, setPhase] = useState<Phase>("idle");
     const [errorMsg, setErrorMsg] = useState<string>("");
 
-    /**
-     * Retrieve user's current geolocation and resolve it into an address.
-     * Updates coordinates, address, status, and timestamp.
-     * Sets geoStatus to "error" if retrieval fails.
-     */
     const askLocation = async () => {
         setGeoStatus("locating");
         setAddr(null);
@@ -68,9 +67,6 @@ export default function ScanDetails() {
         }
     };
 
-    /**
-     * Reset geolocation data and status to initial state.
-     */
     const clearLocation = () => {
         setCoords(null);
         setAddr(null);
@@ -78,27 +74,19 @@ export default function ScanDetails() {
         setGeoStatus("idle");
     };
 
-    /** Auto-fetch location when the component mounts. */
     useEffect(() => {
         askLocation();
     }, []);
 
-    /**
-     * Mount guard:
-     * Ensures this page is accessed only when a pending image or result exists.
-     * Redirects to the capture route if none found.
-     */
+    /** Guard: pastikan ada original (localStorage) atau sudah ada result (sessionStorage) */
     useEffect(() => {
-        const hasImg = !!sessionStorage.getItem("scan:pendingImage");
+        const hasOriginal = !!localStorage.getItem("scan:original");
         const hasResult = !!sessionStorage.getItem("scan:result");
-        if (!hasImg && !hasResult) {
+        if (!hasOriginal && !hasResult) {
             window.location.href = route("scan.capture");
         }
     }, [route]);
 
-    /**
-     * Freeze analyze URL and timeout value to keep dependency references stable.
-     */
     const analyzeUrl = useMemo(() => route("scan.analyze"), [route]);
     const timeoutMs = useMemo(
         () => Number((import.meta as any).env?.VITE_SCAN_TIMEOUT_MS ?? 5000),
@@ -106,27 +94,46 @@ export default function ScanDetails() {
     );
 
     /**
-     * Perform image analysis once.
-     * Used for both auto-run (on mount) and manual retry.
-     * Handles file size check, API request, and result caching.
+     * Ambil file dari URL storage → kirim ke analyze API (FormData "file")
+     * Catatan: pastikan CORS di content.rescat.life sudah mengizinkan fetch dari domain FE.
      */
     const analyzeOnce = useCallback(async () => {
         try {
-            const dataUrl = sessionStorage.getItem("scan:pendingImage");
-            const meta = sessionStorage.getItem("scan:pendingMeta");
-            if (!dataUrl || !meta) return;
+            const raw = localStorage.getItem("scan:original");
+            if (!raw) return;
 
-            setPhase("uploading");
-            const blob = dataURLtoBlob(dataUrl);
+            const original = JSON.parse(raw) as StoredOriginal;
 
-            if (blob.size > 512 * 1024) {
+            // Validasi ukuran jika tersedia dari storage metadata
+            if (typeof original.size === "number" && original.size > 512 * 1024) {
                 setPhase("fail");
                 setErrorMsg("Ukuran gambar melebihi 512KB.");
                 return;
             }
 
+            setPhase("uploading");
+
+            // Ambil blob dari URL (file yang sudah di-upload ke content service)
+            const fetched = await fetch(original.url, { cache: "no-store" });
+            if (!fetched.ok) {
+                setPhase("fail");
+                setErrorMsg("Gagal mengambil gambar dari storage.");
+                return;
+            }
+            const blob = await fetched.blob();
+
+            // Safety check kedua
+            if (blob.size > 512 * 1024) {
+                setPhase("fail");
+                setErrorMsg("Ukuran gambar melebihi 512KB (dari storage).");
+                return;
+            }
+
+            const fileName = original.filename ?? "capture.jpg";
+            const fileType = blob.type || original.mime || "image/jpeg";
+
             const form = new FormData();
-            form.append("file", blob, "capture.jpg");
+            form.append("file", new File([blob], fileName, { type: fileType }));
 
             setPhase("analyzing");
             const csrf = getCsrfToken();
@@ -157,7 +164,6 @@ export default function ScanDetails() {
 
             const rid = res.headers.get("X-Request-ID");
             if (rid) sessionStorage.setItem("scan:rid", rid);
-
         } catch (e: any) {
             console.error("analyzeOnce error:", e);
             setPhase("fail");
@@ -169,23 +175,18 @@ export default function ScanDetails() {
         }
     }, [analyzeUrl, timeoutMs]);
 
-    /**
-     * Auto-run analyzeOnce once per mount (prevent multiple submissions on re-render).
-     */
+    /** Auto-run sekali pada mount bila ada original */
     const autoSentRef = useRef(false);
     useEffect(() => {
         if (autoSentRef.current) return;
-        const hasImg = !!sessionStorage.getItem("scan:pendingImage");
-        if (hasImg) {
+        const hasOriginal = !!localStorage.getItem("scan:original");
+        if (hasOriginal) {
             autoSentRef.current = true;
             void analyzeOnce();
         }
     }, [analyzeOnce]);
 
-    /**
-     * Listen for custom "scan:retry" events.
-     * Triggers analyzeOnce when retry button is clicked elsewhere.
-     */
+    /** Listen retry */
     useEffect(() => {
         const handler = () => analyzeOnce();
         window.addEventListener("scan:retry", handler);

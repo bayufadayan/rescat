@@ -9,6 +9,8 @@ import WatermarkBackground from '@/components/scan/capture/watermark-bg';
 import { useTorch } from '@/hooks/use-torch';
 import { useRoute } from 'ziggy-js';
 import { drawToSquareCanvas, canvasToBlob, compressWithBackoff } from '@/lib/helper/compress';
+import { uploadToContent } from "@/lib/helper/content";
+import { dataUrlToFile } from "@/lib/helper/dataUrlToFile";
 
 export default function ScanCapture() {
     const route = useRoute();
@@ -45,14 +47,14 @@ export default function ScanCapture() {
             videoHeight: video.videoHeight,
         });
 
-        // Render area video -> square 720
+        // Render area video → square 720
         const squareCanvas = drawToSquareCanvas(video, sx, sy, Math.round(sw), Math.round(sh), 720);
 
-        // Blob awal (kualitas tinggi dulu), lalu kompres/backoff ≤ 500KB
-        const initialBlob = await canvasToBlob(squareCanvas, 'image/jpeg', 0.92);
+        // Blob awal (kualitas tinggi), lalu kompres ≤ 500KB
+        const initialBlob = await canvasToBlob(squareCanvas, "image/jpeg", 0.92);
         const result = await compressWithBackoff(initialBlob, 500);
 
-        // Preview & meta
+        // Preview utk UI (pakai URL server nanti, sementara tampilkan hasil lokal dulu)
         const previewDataUrl = result.dataUrl;
         setLastShot(previewDataUrl);
 
@@ -63,17 +65,42 @@ export default function ScanCapture() {
             quality: result.quality,
             sizeBytes: result.sizeBytes,
             createdAt: new Date().toISOString(),
-            source: 'camera',
+            source: "camera",
         };
 
         try {
-            sessionStorage.setItem('scan:pendingImage', previewDataUrl);
-            sessionStorage.setItem('scan:pendingMeta', JSON.stringify(meta));
-        } catch {
-            /* no-op */
-        }
+            // siapkan File untuk upload (dari dataUrl hasil kompres)
+            const filename = `shot-${Date.now()}.jpg`;
+            const file = dataUrlToFile(previewDataUrl, filename, result.mime || "image/jpeg");
 
-        window.location.href = route('scan.details');
+            // upload → content.rescat.life (FormData: bucket dulu, lalu file)
+            const uploaded = await uploadToContent(file, "original-photo");
+            // uploaded: { id, bucket, filename, originalName, mime, size, createdAt, url }
+
+            // simpan ke localStorage (ID & URL; tanpa base64)
+            localStorage.setItem(
+                "scan:original",
+                JSON.stringify({
+                    id: uploaded.id,
+                    url: uploaded.url,
+                    bucket: uploaded.bucket,
+                    filename: uploaded.filename,
+                    mime: uploaded.mime,
+                    size: uploaded.size,
+                    createdAt: uploaded.createdAt,
+                })
+            );
+            localStorage.setItem("scan:meta", JSON.stringify(meta));
+
+            // gunakan URL server untuk preview (opsional, agar konsisten)
+            setLastShot(uploaded.url);
+
+            // lanjut ke halaman berikutnya
+            window.location.href = route("scan.details");
+        } catch (e) {
+            console.error(e);
+            alert("Gagal mengunggah gambar. Coba ulangi.");
+        }
     }, [route]);
 
     const flipCamera = (): void => setFront((p) => !p);
