@@ -129,22 +129,62 @@ export default function MediaPreview({ phase = "idle", errorMsg = "" }: Props) {
                         className={`absolute bottom-3 right-3 grid h-10 w-10 place-items-center rounded-lg shadow-md ${isAnalyzing ? "bg-black/20 cursor-not-allowed" : "bg-black/50"
                             }`}
                         title={isAnalyzing ? "Analyzing..." : "Retry"}
-                        onClick={() => {
+                        onClick={async () => {
                             if (isAnalyzing) return;
+
                             try {
-                                // bersihkan local & session
+                                // --- ambil id dari localStorage
+                                const ids: string[] = [];
+
+                                const original = localStorage.getItem("scan:original");
+                                if (original) {
+                                    const o = JSON.parse(original);
+                                    if (o?.id) ids.push(o.id);
+                                }
+
+                                const roi = localStorage.getItem("scan:roi");
+                                if (roi) {
+                                    const r = JSON.parse(roi);
+                                    if (r?.id) ids.push(r.id);
+                                }
+
+                                const bb = localStorage.getItem("scan:bounding-box");
+                                if (bb) {
+                                    const b = JSON.parse(bb);
+                                    if (b?.id) ids.push(b.id);
+                                }
+
+                                // --- kirim DELETE request kalau ada ID
+                                if (ids.length > 0) {
+                                    await fetch("https://content.rescat.life/api/files/selected", {
+                                        method: "DELETE",
+                                        headers: {
+                                            "Content-Type": "application/json",
+                                        },
+                                        body: JSON.stringify({ ids }),
+                                    }).catch((e) => console.warn("Delete error:", e));
+                                }
+
+                                // --- bersihkan local/session storage
                                 localStorage.removeItem("scan:original");
                                 localStorage.removeItem("scan:meta");
+                                localStorage.removeItem("scan:bounding-box");
+                                localStorage.removeItem("scan:roi");
                                 sessionStorage.removeItem("scan:result");
                                 sessionStorage.removeItem("scan:rid");
-                            } catch {
-                                /* noop */
+                            } catch (e) {
+                                console.error("Retry cleanup error:", e);
                             }
+
+                            // --- kembali ke halaman sebelumnya
                             window.history.back();
                         }}
                     >
                         <figure>
-                            <img src="/images/icon/camera-rollback-icon.svg" alt="camera-rollback-icon.svg" />
+                            <img
+                                src="/images/icon/camera-rollback-icon.svg"
+                                alt="camera-rollback-icon.svg"
+                            />
                         </figure>
                     </button>
                 </div>
