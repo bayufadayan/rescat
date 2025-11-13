@@ -190,7 +190,7 @@ const BottomForm: React.FC<Props> = ({
                                     localStorage.setItem("scan:session_image_id", data.image_id);
 
                                     // lanjut
-                                    window.location.href = route("scan.process");
+                                    window.location.href = route("scan.process", data.session_id);
                                 } catch (e: any) {
                                     alert(e?.message || "Gagal membuat sesi.");
                                 }

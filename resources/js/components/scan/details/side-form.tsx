@@ -114,7 +114,7 @@ const SideForm: React.FC<Props> = ({ status, coords, address, updatedAt, refresh
                             localStorage.setItem("scan:session_id", data.session_id);
                             localStorage.setItem("scan:session_image_id", data.image_id);
 
-                            window.location.href = route("scan.process");
+                            window.location.href = route("scan.process", data.session_id);
                         } catch (e: any) {
                             alert(e?.message || "Gagal membuat sesi.");
                         }

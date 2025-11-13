@@ -254,9 +254,26 @@ class ScanController extends Controller
         }
     }
 
-    public function process()
+    public function processIndex()
     {
-        return Inertia::render('scan/scan-process');
+        return redirect()->route('scan.details');
+    }
+
+    public function process(string $scan_session)
+    {
+        if (!$scan_session) {
+            return redirect()->route('scan.details');
+        }
+
+        $session = ScanSession::find($scan_session);
+
+        if (!$session) {
+            return redirect()->route('scan.details');
+        }
+
+        return Inertia::render('scan/scan-process', [
+            'scan_session_id' => $session->id,
+        ]);
     }
 
     public function results()

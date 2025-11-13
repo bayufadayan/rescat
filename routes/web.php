@@ -20,7 +20,8 @@ Route::prefix('scan')->group(function () {
     Route::post('/analyze', [ScanController::class, 'analyze'])->name('scan.analyze');
     Route::get('/details', [ScanController::class, 'details'])->name('scan.details');
     Route::post('/sessions', [ScanController::class, 'storeSession'])->name('scan.sessions.store');
-    Route::get('/process', [ScanController::class, 'process'])->name('scan.process');
+    Route::get('/process', [ScanController::class, 'processIndex'])->name('scan.process.index');
+    Route::get('/process/{scan_session}', [ScanController::class, 'process'])->name('scan.process');
     Route::get('/results', [ScanController::class, 'results'])->name('scan.results');
     Route::get('/removebg', [ScanController::class, 'removebg'])->name('scan.removebg');
 });

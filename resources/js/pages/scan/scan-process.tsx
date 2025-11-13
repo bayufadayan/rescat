@@ -4,7 +4,11 @@ import { Home, Info } from 'lucide-react';
 import { useRoute } from 'ziggy-js';
 import LottiePlayer from '@/components/lottie/LottiePlayer';
 
-export default function ScanProcess() {
+type ScanProcessProps = {
+    scan_session_id: string;
+};
+
+export default function ScanProcess({ scan_session_id }: ScanProcessProps) {
     const route = useRoute();
     const [isImageLoaded, setIsImageLoaded] = useState(false);
 
@@ -112,6 +116,12 @@ export default function ScanProcess() {
                         </div>
 
                         <div className="flex flex-col items-center gap-2">
+                            <p className="flex items-center gap-2 text-white/80 mt-1">
+                                <span className="inline-block h-2 w-2 rounded-full bg-white/80" />
+                                <span className="text-xs font-mono tracking-wide">
+                                    Scan Session ID: {scan_session_id}
+                                </span>
+                            </p>
                             <p className="flex items-center gap-2 text-white/95">
                                 <span className="inline-block h-3 w-3 animate-[spin_1s_linear_infinite] rounded-full border-2 border-white border-t-transparent" />
                                 <span className="text-base font-semibold tracking-wide">
