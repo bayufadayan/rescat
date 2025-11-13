@@ -1,29 +1,43 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+function cleanStr(v: string | null, fallback: string) {
+    if (!v) return fallback;
+    try {
+        const parsed = JSON.parse(v);
+        if (typeof parsed === 'string') return parsed;
+    } catch {
+        // ignore
+    }
+
+    return v;
+}
+
 export function buildSessionPayload(
     address: any,
     coords: { lat: number; lon: number } | null,
     opts?: { informer?: string; notes?: string },
 ) {
-    const scanOption = localStorage.getItem('scanOption') || 'face';
-    const scanType = localStorage.getItem('scanType') || 'quick';
+    const scanOption = cleanStr(localStorage.getItem('scanOption'), 'face');
+    const scanType = cleanStr(localStorage.getItem('scanType'), 'quick');
 
-    const original = safeParseLS('scan:original'); // { id, url, ... }
-    const bb = safeParseLS('scan:bounding-box'); // { id, url }
-    const roi = safeParseLS('scan:roi'); // { id, url }
+    const original = safeParseLS('scan:original');
+    const bb = safeParseLS('scan:bounding-box');
+    const roi = safeParseLS('scan:roi');
 
     const locationStr =
         (address?.display as string) ??
         (coords ? `${coords.lat}, ${coords.lon}` : null);
 
+    console.log('Dari session Payload');
+
     return {
-        scan_type: scanOption, // → DB: scan_type
-        checkup_type: scanType, // → DB: checkup_type ("quick"|"detail")
+        scan_type: scanOption,
+        checkup_type: scanType,
 
         latitude: coords?.lat ?? null,
         longitude: coords?.lon ?? null,
         location: locationStr ?? null,
 
-        informer: opts?.informer ?? null, // "Anonim" atau nama
+        informer: opts?.informer ?? null,
         notes: opts?.notes ?? null,
 
         images: {
@@ -33,7 +47,6 @@ export function buildSessionPayload(
             img_bounding_box_url: bb?.url ?? null,
             img_roi_id: roi?.id ?? null,
             img_roi_url: roi?.url ?? null,
-            // remove_bg kalau nanti tersedia
         },
     };
 }

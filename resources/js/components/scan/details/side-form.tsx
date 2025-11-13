@@ -96,12 +96,12 @@ const SideForm: React.FC<Props> = ({ status, coords, address, updatedAt, refresh
                             const { data } = await submitScanSession(route("scan.sessions.store"), payload);
 
                             [
+                                "scanOption",
+                                "scanType",
                                 "scan:original",
                                 "scan:meta",
                                 "scan:bounding-box",
                                 "scan:roi",
-                                "scan:result",
-                                "scan:rid",
                                 "scan:session_id",
                                 "scan:session_image_id"
                             ].forEach(key => localStorage.removeItem(key));

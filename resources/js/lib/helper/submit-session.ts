@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { getCsrfToken } from '@/lib/helper/upload';
 
-export async function submitScanSession(createUrl: string, payload: any) {
+export async function submitScanSession(createUrl: string, payload: any) {    
     const csrf = getCsrfToken();
     const res = await fetch(createUrl, {
         method: 'POST',

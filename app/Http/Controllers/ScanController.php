@@ -187,64 +187,71 @@ class ScanController extends Controller
 
     public function storeSession(Request $request): JsonResponse
     {
-        $validated = $request->validate([
-            'scan_type'        => 'required|string',
-            'checkup_type'     => 'required|in:quick,detail',
-            'latitude'         => 'nullable|numeric',
-            'longitude'        => 'nullable|numeric',
-            'location'         => 'nullable|string',
-            'informer'         => 'nullable|string',
-            'notes'            => 'nullable|string',
-            'cat_id'           => 'nullable|string',
+        try {
+            $validated = $request->validate([
+                'scan_type'        => 'required|string',
+                'checkup_type'     => 'required|in:quick,detail',
+                'latitude'         => 'nullable|numeric',
+                'longitude'        => 'nullable|numeric',
+                'location'         => 'nullable|string',
+                'informer'         => 'nullable|string',
+                'notes'            => 'nullable|string',
+                'cat_id'           => 'nullable|string',
+                'images.img_original_id'        => 'nullable|string',
+                'images.img_original_url'       => 'nullable|url',
+                'images.img_bounding_box_id'    => 'nullable|string',
+                'images.img_bounding_box_url'   => 'nullable|url',
+                'images.img_roi_id'             => 'nullable|string',
+                'images.img_roi_url'            => 'nullable|url',
+                'images.img_remove_bg_id'       => 'nullable|string',
+                'images.img_remove_bg_url'      => 'nullable|url',
+            ]);
 
-            // images.* dari localStorage
-            'images.img_original_id'        => 'nullable|string',
-            'images.img_original_url'       => 'nullable|url',
-            'images.img_bounding_box_id'    => 'nullable|string',
-            'images.img_bounding_box_url'   => 'nullable|url',
-            'images.img_roi_id'             => 'nullable|string',
-            'images.img_roi_url'            => 'nullable|url',
-            // remove_bg opsional (kalau nanti ada)
-            'images.img_remove_bg_id'       => 'nullable|string',
-            'images.img_remove_bg_url'      => 'nullable|url',
-        ]);
+            $session = ScanSession::create([
+                'user_id'      => Auth::id(),
+                'cat_id'       => $validated['cat_id'] ?? null,
+                'scan_type'    => $validated['scan_type'],
+                'checkup_type' => $validated['checkup_type'],
+                'status'       => 'processing',
+                'latitude'     => $validated['latitude'] ?? null,
+                'longitude'    => $validated['longitude'] ?? null,
+                'location'     => $validated['location'] ?? null,
+                'informer'     => $validated['informer'] ?? null,
+                'notes'        => $validated['notes'] ?? null,
+            ]);
 
-        // user_id & cat_id boleh null (sudah nullable di migration)
-        $session = ScanSession::create([
-            'id'           => (string) \Illuminate\Support\Str::ulid(),
-            'user_id'      => Auth::id(),                // null kalau guest
-            'cat_id'       => $validated['cat_id'] ?? null,
-            'scan_type'    => $validated['scan_type'],
-            'checkup_type' => $validated['checkup_type'],
-            'status'       => 'processing',              // biarkan string; akan di-cast ke enum
-            'latitude'     => $validated['latitude'] ?? null,
-            'longitude'    => $validated['longitude'] ?? null,
-            'location'     => $validated['location'] ?? null,
-            'informer'     => $validated['informer'] ?? null,
-            'notes'        => $validated['notes'] ?? null,
-        ]);
+            $imgPayload = $validated['images'] ?? [];
 
-        $imgPayload = $validated['images'] ?? [];
+            $img = ScanImage::create([
+                'scan_id'                 => $session->id,
+                'img_original_id'         => $imgPayload['img_original_id'] ?? null,
+                'img_original_url'        => $imgPayload['img_original_url'] ?? null,
+                'img_bounding_box_id'     => $imgPayload['img_bounding_box_id'] ?? null,
+                'img_bounding_box_url'    => $imgPayload['img_bounding_box_url'] ?? null,
+                'img_roi_id'              => $imgPayload['img_roi_id'] ?? null,
+                'img_roi_url'             => $imgPayload['img_roi_url'] ?? null,
+                'img_remove_bg_id'        => $imgPayload['img_remove_bg_id'] ?? null,
+                'img_remove_bg_url'       => $imgPayload['img_remove_bg_url'] ?? null,
+            ]);
 
-        $img = ScanImage::create([
-            'scan_id'                 => $session->id,
-            'img_original_id'         => $imgPayload['img_original_id']       ?? null,
-            'img_original_url'        => $imgPayload['img_original_url']      ?? null,
-            'img_bounding_box_id'     => $imgPayload['img_bounding_box_id']   ?? null,
-            'img_bounding_box_url'    => $imgPayload['img_bounding_box_url']  ?? null,
-            'img_roi_id'              => $imgPayload['img_roi_id']            ?? null,
-            'img_roi_url'             => $imgPayload['img_roi_url']           ?? null,
-            'img_remove_bg_id'        => $imgPayload['img_remove_bg_id']      ?? null,
-            'img_remove_bg_url'       => $imgPayload['img_remove_bg_url']     ?? null,
-        ]);
+            return response()->json([
+                'ok' => true,
+                'data' => [
+                    'session_id' => $session->id,
+                    'image_id'   => $img->id,
+                ],
+            ], 201);
+        } catch (\Throwable $e) {
+            Log::error("StoreSession error: " . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+            ]);
 
-        return response()->json([
-            'ok'   => true,
-            'data' => [
-                'session_id' => $session->id,
-                'image_id'   => $img->id,
-            ],
-        ], 201);
+            return response()->json([
+                'ok' => false,
+                'message' => 'Gagal membuat sesi. Silakan coba lagi.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function process()
