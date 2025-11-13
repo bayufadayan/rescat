@@ -265,14 +265,16 @@ class ScanController extends Controller
             return redirect()->route('scan.details');
         }
 
-        $session = ScanSession::find($scan_session);
+        $session = ScanSession::with([
+            'images',
+        ])->find($scan_session);
 
         if (!$session) {
             return redirect()->route('scan.details');
         }
 
         return Inertia::render('scan/scan-process', [
-            'scan_session_id' => $session->id,
+            'session' => $session,
         ]);
     }
 
