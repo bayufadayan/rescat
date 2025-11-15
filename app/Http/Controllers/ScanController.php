@@ -287,4 +287,67 @@ class ScanController extends Controller
     {
         return Inertia::render('scan/scan-removebg');
     }
+
+    public function removebgServerPage()
+    {
+        return Inertia::render('scan/scan-removebg-server');
+    }
+
+    // 🔥 NEW: proses remove BG via remove.bg API
+    public function removeBgServerProcess(Request $request)
+    {
+        try {
+            $request->validate([
+                'file' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
+            ]);
+        } catch (ValidationException $e) {
+            $failed = $e->validator->failed();
+            $code = 'INVALID_FILE';
+            $status = 400;
+
+            if (isset($failed['file']['Mimes'])) {
+                $code = 'UNSUPPORTED_MEDIA_TYPE';
+                $status = 415;
+            } elseif (isset($failed['file']['Max'])) {
+                $code = 'FILE_TOO_LARGE';
+                $status = 413;
+            } elseif (isset($failed['file']['Image'])) {
+                $code = 'INVALID_FILE';
+                $status = 400;
+            } elseif (isset($failed['file']['Required'])) {
+                $code = 'INVALID_FILE';
+                $status = 400;
+            }
+
+            return response()->json([
+                'ok' => false,
+                'code' => $code,
+                'message' => $this->errorMessageForCode($code),
+            ], $status);
+        }
+
+        $file = $request->file('file');
+
+        try {
+            // 🔥 Panggil remove.bg via helper Laravel dari package
+            // Ini akan mengirim file ke API remove.bg dan dapat PNG transparan balik
+            $pngBinary = removebg()
+                ->file($file->getRealPath())
+                ->get(); // raw contents PNG
+
+            return response($pngBinary, 200, [
+                'Content-Type'        => 'image/png',
+                'Content-Disposition' => 'inline; filename="removed-bg.png"',
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('RemoveBG API error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'ok' => false,
+                'message' => 'Gagal menghapus background di server (remove.bg).',
+            ], 500);
+        }
+    }
 }
