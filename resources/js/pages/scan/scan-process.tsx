@@ -1,18 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useEffect, useState } from "react";
+"use client";
+import React, { useEffect, useRef, useState } from "react";
 import { Home, Info } from "lucide-react";
-import { useRoute } from "ziggy-js";
+import { route } from "ziggy-js";
 import LottiePlayer from "@/components/lottie/LottiePlayer";
-import { removeBackground } from "@imgly/background-removal";
 
 type ScanProcessProps = {
     session: any;
 };
 
 export default function ScanProcess({ session }: ScanProcessProps) {
-    const route = useRoute();
-
     const [processingState, setProcessingState] = useState<"idle" | "removing" | "done" | "error">("idle");
     const [removedUrl, setRemovedUrl] = useState<string | null>(null);
     const [removedBlob, setRemovedBlob] = useState<Blob | null>(null);
@@ -20,6 +18,7 @@ export default function ScanProcess({ session }: ScanProcessProps) {
     const firstImage = session?.images?.[0];
     const rawOriginalUrl = firstImage?.img_original_url as string | undefined;
 
+    // URL untuk tampilan saja (tambahkan cors=1 seperti sebelumnya)
     const originalUrl = rawOriginalUrl
         ? `${rawOriginalUrl}${rawOriginalUrl.includes("?") ? "&" : "?"}cors=1`
         : undefined;
@@ -27,7 +26,15 @@ export default function ScanProcess({ session }: ScanProcessProps) {
     const isImageReady = processingState === "done" && !!removedUrl;
     const maskImage = removedUrl ? `url(${removedUrl})` : undefined;
 
+    // 🔥 guard supaya effect cuma jalan sekali (hindari spam / loop)
+    const hasRequestedRef = useRef(false);
+
     useEffect(() => {
+        if (hasRequestedRef.current) {
+            return;
+        }
+        hasRequestedRef.current = true;
+
         if (!originalUrl) {
             console.warn("Tidak ada img_original_url pada session.images[0]");
             setProcessingState("error");
@@ -43,7 +50,38 @@ export default function ScanProcess({ session }: ScanProcessProps) {
                 setRemovedUrl(null);
                 setRemovedBlob(null);
 
-                const blob = await removeBackground(originalUrl);
+                // 🔥 endpoint Laravel: scan.process.removebg
+                const removeBgEndpoint = route("scan.process.removebg", {
+                    scan_session: session.id,
+                });
+
+                const csrfToken = (document.querySelector(
+                    'meta[name="csrf-token"]'
+                ) as HTMLMetaElement | null)?.content;
+
+                const res = await fetch(removeBgEndpoint, {
+                    method: "POST",
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest",
+                        ...(csrfToken ? { "X-CSRF-TOKEN": csrfToken } : {}),
+                    },
+                });
+
+                const contentType = res.headers.get("Content-Type") || "";
+
+                if (!res.ok || !contentType.startsWith("image/")) {
+                    let msg = "Gagal menghapus background di server.";
+                    try {
+                        const data = await res.json();
+                        console.error("removeBgForSession error payload:", data);
+                        if (data?.message) msg = data.message;
+                    } catch {
+                        // abaikan
+                    }
+                    throw new Error(msg);
+                }
+
+                const blob = await res.blob();
                 objectUrl = URL.createObjectURL(blob);
 
                 if (cancelled) {
@@ -55,8 +93,10 @@ export default function ScanProcess({ session }: ScanProcessProps) {
                 setRemovedUrl(objectUrl);
                 setProcessingState("done");
             } catch (e) {
-                console.error("removeBackground failed", e);
-                setProcessingState("error");
+                if (!cancelled) {
+                    console.error("removeBgForSession failed:", e);
+                    setProcessingState("error");
+                }
             }
         };
 
@@ -68,7 +108,7 @@ export default function ScanProcess({ session }: ScanProcessProps) {
                 URL.revokeObjectURL(objectUrl);
             }
         };
-    }, [originalUrl]);
+    }, [originalUrl, session.id]);
 
     return (
         <main className="min-h-dvh h-dvh flex items-center justify-center bg-[linear-gradient(to_bottom,_#0091F3,_#21A6FF)] relative">
@@ -200,8 +240,8 @@ export default function ScanProcess({ session }: ScanProcessProps) {
                                     Scan Session ID: {session.id}
                                 </span>
                             </p>
-                            <p>
-                                {processingState}
+                            <p className="text-white text-xs">
+                                State: {processingState}
                             </p>
                             <p className="flex items-center gap-2 text-white/95">
                                 <span className="inline-block h-3 w-3 animate-[spin_1s_linear_infinite] rounded-full border-2 border-white border-t-transparent" />
@@ -217,7 +257,9 @@ export default function ScanProcess({ session }: ScanProcessProps) {
 
                 <div className="bg-white shadow-md w-full rounded-full p-2 flex flex-row gap-2 items-center max-w-lg self-center">
                     <Info height={20} width={20} className="text-amber-500" />
-                    <p className="flex flex-1 text-black text-xs">Anda dapat kembali ke beranda jika terlalu lama</p>
+                    <p className="flex flex-1 text-black text-xs">
+                        Anda dapat kembali ke beranda jika terlalu lama
+                    </p>
                 </div>
             </div>
         </main>
