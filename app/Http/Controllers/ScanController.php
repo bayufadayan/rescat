@@ -278,6 +278,76 @@ class ScanController extends Controller
         ]);
     }
 
+    public function removeBgForSession(Request $request, string $scan_session)
+    {
+        $session = ScanSession::with('images')->find($scan_session);
+
+        if (!$session) {
+            return response()->json([
+                'ok' => false,
+                'message' => 'Scan session tidak ditemukan.',
+            ], 404);
+        }
+
+        $image = $session->images->first();
+
+        if (!$image) {
+            return response()->json([
+                'ok' => false,
+                'message' => 'Tidak ada image terkait session ini.',
+            ], 400);
+        }
+
+        // Ambil URL sumber: pakai roi kalau ada, kalau tidak pakai original
+        $sourceUrl = $image->img_roi_url ?? $image->img_original_url;
+
+        if (!$sourceUrl) {
+            return response()->json([
+                'ok' => false,
+                'message' => 'URL gambar tidak tersedia.',
+            ], 400);
+        }
+
+        try {
+            // 🔥 1) Laravel download dulu gambar dari URL
+            $resp = Http::timeout(20)->get($sourceUrl);
+
+            if (!$resp->ok()) {
+                return response()->json([
+                    'ok'      => false,
+                    'message' => 'Gagal mengunduh gambar dari URL sumber.',
+                    'error'   => $resp->body(),
+                ], 502);
+            }
+
+            $imageContent = $resp->body();
+            $base64 = base64_encode($imageContent);
+
+            // 🔥 2) Kirim ke remove.bg sebagai base64 (BUKAN url)
+            $pngBinary = removebg()
+                ->base64($base64)
+                ->get(); // raw PNG contents
+
+            return response($pngBinary, 200, [
+                'Content-Type'        => 'image/png',
+                'Content-Disposition' => 'inline; filename="removed-bg.png"',
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('removeBgForSession error: ' . $e->getMessage(), [
+                'scan_session' => $scan_session,
+                'source_url'   => $sourceUrl,
+                'trace'        => $e->getTraceAsString(),
+            ]);
+
+            // 🔥 kirim pesan asli juga (biar kelihatan di console selama dev)
+            return response()->json([
+                'ok'      => false,
+                'message' => 'Gagal menghapus background di server.',
+                'error'   => app()->environment('local') ? $e->getMessage() : null,
+            ], 500);
+        }
+    }
+
     public function results()
     {
         return Inertia::render('scan/scan-results');
